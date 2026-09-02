@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Fund Transfer | KAAP Bank{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <div class="page-header">
+        <p class="eyebrow">BANKING OPERATIONS</p>
+
+        <h1>Fund Transfer</h1>
+
+        <p class="page-description">
+            Transfer funds securely between active KAAP BANK accounts.
+        </p>
+    </div>
+
+
+    <div class="transfer-container">
+
+        <section class="form-card">
+
+            <div class="card-heading">
+
+                <div class="action-icon">
+                    ↔
+                </div>
+
+                <div>
+                    <h2>Transfer Money</h2>
+
+                    <p>
+                        Move funds from one account to another.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <form action="{{ url_for('transfer') }}" method="POST">
+
+                <div class="form-group">
+
+                    <label>From Account ID</label>
+
+                    <input
+                        type="number"
+                        name="from_account"
+                        placeholder="Enter sender account ID"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>To Account ID</label>
+
+                    <input
+                        type="number"
+                        name="to_account"
+                        placeholder="Enter receiver account ID"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Transfer Amount</label>
+
+                    <input
+                        type="number"
+                        name="amount"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="₹ 0.00"
+                        required
+                    >
+
+                </div>
+
+
+                <button type="submit">
+                    Transfer Money
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <div class="page-links">
+
+            <a href="/accounts" class="secondary-button">
+                ← Bank Accounts
+            </a>
+
+            <a href="/transactions" class="secondary-button">
+                Transaction History →
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

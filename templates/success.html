@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction Successful | KAAP Bank{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <div class="success-container">
+
+        <div class="success-card">
+
+            <!-- Success Icon -->
+            <div class="success-icon">✓</div>
+
+            <p class="eyebrow">TRANSACTION SUCCESSFUL</p>
+
+            <h1>{{ title }}</h1>
+
+            <p class="success-message">
+                {{ message }}
+            </p>
+
+
+            <!-- Transaction Information -->
+            <div class="success-info">
+
+                {% if amount %}
+                <div class="success-row">
+                    <span>Amount</span>
+                    <strong>₹{{ "%.2f"|format(amount) }}</strong>
+                </div>
+                {% endif %}
+
+
+                {% if from_account %}
+                <div class="success-row">
+                    <span>From Account</span>
+                    <strong>#{{ from_account }}</strong>
+                </div>
+                {% endif %}
+
+
+                {% if to_account %}
+                <div class="success-row">
+                    <span>To Account</span>
+                    <strong>#{{ to_account }}</strong>
+                </div>
+                {% endif %}
+
+
+                <div class="success-row">
+                    <span>Transaction Status</span>
+                    <strong class="success-status">COMMITTED</strong>
+                </div>
+
+            </div>
+
+
+            <!-- Success Message -->
+            <div class="success-note">
+
+                <strong>Transaction committed successfully</strong>
+
+                <p>
+                    All database changes have been saved successfully.
+                </p>
+
+            </div>
+
+
+            <!-- Buttons -->
+            <div class="success-actions">
+
+                {% if transaction_demo %}
+
+                    <a href="/transaction-control" class="primary-button">
+                        ← Back to Transaction Control
+                    </a>
+
+                    <a href="/transaction-control" class="secondary-button">
+                        Try Another Transaction
+                    </a>
+
+                {% else %}
+
+                    <a href="/accounts" class="primary-button">
+                        ← Back to Accounts
+                    </a>
+
+                    <a href="/transfer" class="secondary-button">
+                        Make Another Transfer
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

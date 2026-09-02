@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Accounts | Nova Bank{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">ACCOUNT MANAGEMENT</p>
+            <h1>Bank Accounts</h1>
+            <p class="page-description">
+                Manage account balances and perform banking operations.
+            </p>
+        </div>
+    </div>
+
+
+    <!-- Transaction Actions -->
+
+    <div class="action-grid">
+
+        <section class="form-card">
+
+            <div class="card-heading">
+                <div class="action-icon">₹</div>
+
+                <div>
+                    <h2>Deposit Money</h2>
+                    <p>Add funds to an active account.</p>
+                </div>
+            </div>
+
+            <form action="{{ url_for('deposit') }}"
+                  method="POST">
+
+                <div class="form-group">
+
+                    <label>Account ID</label>
+
+                    <input
+                        type="number"
+                        name="account_id"
+                        placeholder="Enter account ID"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Amount</label>
+
+                    <input
+                        type="number"
+                        name="amount"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="₹ 0.00"
+                        required
+                    >
+
+                </div>
+
+                <button type="submit">
+                    Deposit Money
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <section class="form-card">
+
+            <div class="card-heading">
+                <div class="action-icon">−</div>
+
+                <div>
+                    <h2>Withdraw Money</h2>
+                    <p>Withdraw funds from an active account.</p>
+                </div>
+            </div>
+
+            <form action="{{ url_for('withdraw') }}"
+                  method="POST">
+
+                <div class="form-group">
+
+                    <label>Account ID</label>
+
+                    <input
+                        type="number"
+                        name="account_id"
+                        placeholder="Enter account ID"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Amount</label>
+
+                    <input
+                        type="number"
+                        name="amount"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="₹ 0.00"
+                        required
+                    >
+
+                </div>
+
+                <button type="submit">
+                    Withdraw Money
+                </button>
+
+            </form>
+
+        </section>
+
+    </div>
+
+
+    <!-- Accounts -->
+
+    <section class="table-card">
+
+        <div class="table-header">
+
+            <div>
+                <p class="eyebrow">ACCOUNT OVERVIEW</p>
+                <h2>All Bank Accounts</h2>
+            </div>
+
+            <a href="/customers" class="small-button">
+                + Create Account
+            </a>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Account ID</th>
+                        <th>Customer ID</th>
+                        <th>Account Number</th>
+                        <th>Type</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for account in accounts %}
+
+                    <tr>
+
+                        <td>
+                            <strong>#{{ account[0] }}</strong>
+                        </td>
+
+                        <td>
+                            {{ account[1] }}
+                        </td>
+
+                        <td>
+                            <strong>{{ account[2] }}</strong>
+                        </td>
+
+                        <td>
+                            <span class="account-type">
+                                {{ account[3] }}
+                            </span>
+                        </td>
+
+                        <td class="balance">
+                            ₹{{ "%.2f"|format(account[4]) }}
+                        </td>
+
+                        <td>
+                            <span class="status-badge">
+                                {{ account[5] }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- Navigation -->
+
+    <div class="page-links">
+
+        <a href="/transfer" class="secondary-button">
+            Fund Transfer →
+        </a>
+
+        <a href="/transactions" class="secondary-button">
+            Transaction History →
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | KAAP Bank{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <!-- Welcome -->
+
+    <section class="welcome-section">
+
+        <div>
+
+            <p class="eyebrow">
+                BANKING OPERATIONS
+            </p>
+
+            <h1>
+                Transaction Management
+            </h1>
+
+            <p class="welcome-text">
+                Manage customers, accounts and banking
+                transactions from one secure platform.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- Quick Access -->
+
+    <section>
+
+        <div class="section-heading">
+
+            <div>
+                <p class="eyebrow">QUICK ACCESS</p>
+
+                <h2>
+                    Banking Operations
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-grid">
+
+
+            <a href="/customers"
+               class="dashboard-card">
+
+                <div class="dashboard-icon">
+                    👤
+                </div>
+
+                <div>
+
+                    <h3>
+                        Customers
+                    </h3>
+
+                    <p>
+                        Add and manage customer information.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+            <a href="/accounts"
+               class="dashboard-card">
+
+                <div class="dashboard-icon">
+                    🏦
+                </div>
+
+                <div>
+
+                    <h3>
+                        Accounts
+                    </h3>
+
+                    <p>
+                        View accounts and manage balances.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+            <a href="/accounts"
+               class="dashboard-card">
+
+                <div class="dashboard-icon">
+                    ₹
+                </div>
+
+                <div>
+
+                    <h3>
+                        Deposit & Withdrawal
+                    </h3>
+
+                    <p>
+                        Perform account transactions.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+            <a href="/transfer"
+               class="dashboard-card">
+
+                <div class="dashboard-icon">
+                    ↔
+                </div>
+
+                <div>
+
+                    <h3>
+                        Fund Transfer
+                    </h3>
+
+                    <p>
+                        Transfer funds between accounts.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+            <a href="/transactions"
+               class="dashboard-card">
+
+                <div class="dashboard-icon">
+                    ≡
+                </div>
+
+                <div>
+
+                    <h3>
+                        Transaction History
+                    </h3>
+
+                    <p>
+                        Review completed transactions.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- Transaction Management -->
+
+    <section class="info-banner">
+
+        <div class="info-icon">
+            ✓
+        </div>
+
+        <div>
+
+            <h3>
+                Transaction Management Enabled
+            </h3>
+
+            <p>
+                Banking operations use database transactions
+                with COMMIT and ROLLBACK to maintain data
+                consistency.
+            </p>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

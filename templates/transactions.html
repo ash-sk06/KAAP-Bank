@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions | KAAP Bank{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+
+        <div>
+            <p class="eyebrow">TRANSACTION RECORDS</p>
+
+            <h1>All Transactions</h1>
+        </div>
+
+        <a href="/accounts" class="small-button">
+            Bank Accounts →
+        </a>
+
+    </div>
+
+
+    <!-- Transaction Table -->
+    <section class="table-card">
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>TRANSACTION ID</th>
+                        <th>ACCOUNT ID</th>
+                        <th>TRANSACTION TYPE</th>
+                        <th>AMOUNT</th>
+                        <th>DATE & TIME</th>
+                        <th>STATUS</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for transaction in transactions %}
+
+                    <tr>
+
+                        <!-- Transaction ID -->
+                        <td>
+                            <strong>#{{ transaction[0] }}</strong>
+                        </td>
+
+
+                        <!-- Account ID -->
+                        <td>
+                            {{ transaction[1] }}
+                        </td>
+
+
+                        <!-- Transaction Type -->
+                        <td>
+
+                            <span class="transaction-type">
+                                {{ transaction[2] }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Amount -->
+                        <td>
+
+                            <strong class="balance">
+                                ₹{{ "%.2f"|format(transaction[3]) }}
+                            </strong>
+
+                        </td>
+
+
+                        <!-- Date and Time -->
+                        <td>
+
+                            <div class="transaction-date">
+                                {{ transaction[4] }}
+                            </div>
+
+                            <div class="transaction-time">
+                                {{ transaction[5] }} IST
+                            </div>
+
+                        </td>
+
+
+                        <!-- Status -->
+                        <td>
+
+                            <span class="status-badge">
+                                {{ transaction[6] }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="6" style="text-align: center;">
+                            No transactions recorded yet.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- Navigation -->
+    <div class="page-links">
+
+        <a href="/accounts" class="secondary-button">
+            ← Bank Accounts
+        </a>
+
+        <a href="/transfer" class="secondary-button">
+            Fund Transfer →
+        </a>
+
+        <a href="/customers" class="secondary-button">
+            Customers
+        </a>
+
+        <a href="/" class="secondary-button">
+            Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

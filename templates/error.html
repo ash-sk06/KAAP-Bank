@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction Failed | KAAP Bank{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <div class="error-container">
+
+        <div class="error-card">
+
+            <div class="error-icon">
+                !
+            </div>
+
+            <p class="eyebrow">TRANSACTION FAILED</p>
+
+            <h1>{{ title }}</h1>
+
+            <p class="error-message">
+                {{ message }}
+            </p>
+
+            <div class="error-info">
+
+                <strong>Transaction not completed</strong>
+
+                <p>
+                    No changes were made to the account balance.
+                    The transaction has been rolled back safely.
+                </p>
+
+            </div>
+
+            <div class="error-actions">
+
+                <a href="/accounts" class="primary-button">
+                    ← Back to Accounts
+                </a>
+
+                <a href="/transfer" class="secondary-button">
+                    Try Again
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction Control | KAAP Bank{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <div class="page-header">
+
+        <p class="eyebrow">DBMS TRANSACTION MANAGEMENT</p>
+
+        <h1>Transaction Control</h1>
+
+        <p class="page-description">
+            Execute real Oracle transaction operations and observe
+            COMMIT, ROLLBACK and SAVEPOINT behaviour.
+        </p>
+
+    </div>
+
+
+    <!-- Demo Account -->
+
+    <section class="table-card">
+
+        <div class="table-header">
+
+            <div>
+                <p class="eyebrow">DEMO ACCOUNT</p>
+
+                <h2>Transaction Control Test Account</h2>
+            </div>
+
+            <span class="status-badge">
+                ACTIVE
+            </span>
+
+        </div>
+
+
+        <div class="demo-account">
+
+            <div>
+                <span>Account Number</span>
+                <strong>{{ account[0] }}</strong>
+            </div>
+
+            <div>
+                <span>Current Balance</span>
+                <strong>₹{{ "%.2f"|format(account[1]) }}</strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Transaction Controls -->
+
+    <div class="action-grid">
+
+
+        <!-- COMMIT -->
+
+        <section class="form-card">
+
+            <div class="card-heading">
+
+                <div class="action-icon">
+                    ✓
+                </div>
+
+                <div>
+                    <h2>COMMIT</h2>
+
+                    <p>
+                        Permanently save a database change.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="demo-description">
+
+                <p>
+                    Adds <strong>₹1,000</strong> to the demo account
+                    and permanently saves the change.
+                </p>
+
+            </div>
+
+
+            <form
+                action="{{ url_for('commit_demo') }}"
+                method="POST"
+            >
+
+                <button type="submit">
+                    Execute COMMIT
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- ROLLBACK -->
+
+        <section class="form-card">
+
+            <div class="card-heading">
+
+                <div class="action-icon">
+                    ↶
+                </div>
+
+                <div>
+                    <h2>ROLLBACK</h2>
+
+                    <p>
+                        Undo an uncommitted database change.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="demo-description">
+
+                <p>
+                    Temporarily adds <strong>₹2,000</strong> and then
+                    rolls the change back.
+                </p>
+
+            </div>
+
+
+            <form
+                action="{{ url_for('rollback_demo') }}"
+                method="POST"
+            >
+
+                <button type="submit">
+                    Execute ROLLBACK
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- SAVEPOINT -->
+
+        <section class="form-card">
+
+            <div class="card-heading">
+
+                <div class="action-icon">
+                    ●
+                </div>
+
+                <div>
+                    <h2>SAVEPOINT</h2>
+
+                    <p>
+                        Roll back to a specific point.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="demo-description">
+
+                <p>
+                    Adds ₹1,000, creates a SAVEPOINT, adds ₹2,000,
+                    then rolls back only the second operation.
+                </p>
+
+            </div>
+
+
+            <form
+                action="{{ url_for('savepoint_demo') }}"
+                method="POST"
+            >
+
+                <button type="submit">
+                    Execute SAVEPOINT
+                </button>
+
+            </form>
+
+        </section>
+
+    </div>
+
+
+    <!-- ACID -->
+
+    <section class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    TRANSACTION PROPERTIES
+                </p>
+
+                <h2>ACID Properties</h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="acid-grid">
+
+            <div class="acid-item">
+
+                <strong>A</strong>
+
+                <div>
+                    <b>Atomicity</b>
+
+                    <p>
+                        A transaction is completed fully or rolled back.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="acid-item">
+
+                <strong>C</strong>
+
+                <div>
+                    <b>Consistency</b>
+
+                    <p>
+                        Database constraints remain satisfied.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="acid-item">
+
+                <strong>I</strong>
+
+                <div>
+                    <b>Isolation</b>
+
+                    <p>
+                        Concurrent operations are controlled using locking.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="acid-item">
+
+                <strong>D</strong>
+
+                <div>
+                    <b>Durability</b>
+
+                    <p>
+                        Committed changes remain stored in the database.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <div class="page-links">
+
+        <a href="/accounts" class="secondary-button">
+            ← Bank Accounts
+        </a>
+
+        <a href="/transactions" class="secondary-button">
+            Transaction History →
+        </a>
+
+        <a href="/" class="secondary-button">
+            Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}
