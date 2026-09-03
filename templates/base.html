@@ -2,76 +2,101 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>{% block title %}KAAP Bank{% endblock %}</title>
+    <title>
+        {% block title %}
+        KAPA Bank
+        {% endblock %}
+    </title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
 </head>
+
 
 <body>
 
-    <!-- Navigation -->
-
     <nav class="navbar">
 
-        <a href="/" class="brand">
-            <span class="brand-icon">N</span>
+        <div class="nav-container">
 
-            <div>
-                <strong>KAAP BANK</strong>
-                <small>Transaction Management</small>
+            <a href="/" class="brand">
+
+                <span class="brand-icon">
+                    K
+                </span>
+
+                <div class="brand-text">
+
+                    <strong>
+                        KAPA BANK
+                    </strong>
+
+                    <small>
+                        Transaction Management
+                    </small>
+
+                </div>
+
+            </a>
+
+
+            <div class="nav-links">
+
+                <a href="/">
+                    Dashboard
+                </a>
+
+                <a href="/customers">
+                    Customers
+                </a>
+
+                <a href="/accounts">
+                    Accounts
+                </a>
+
+                <a href="/transfer">
+                    Transfers
+                </a>
+
+                <a href="/transactions">
+                    Transactions
+                </a>
+
+                <a href="/transaction-control">
+                    Transaction Control
+                </a>
+
             </div>
-        </a>
-
-
-        <div class="nav-links">
-
-            <a href="/" class="nav-link">Dashboard</a>
-
-            <a href="/customers" class="nav-link">
-                Customers
-            </a>
-
-            <a href="/accounts" class="nav-link">
-                Accounts
-            </a>
-
-            <a href="/transfer" class="nav-link">
-                Transfers
-            </a>
-
-            <a href="/transactions" class="nav-link">
-                Transactions
-            </a>
-
-            <a href="/transaction-control" class="nav-link">
-                Transaction Control
-            </a>
 
         </div>
 
     </nav>
 
 
-    <!-- Page Content -->
+    <main class="main-content">
 
-    <main>
         {% block content %}
+
         {% endblock %}
+
     </main>
 
 
-    <!-- Footer -->
-
-    <footer>
+    <footer class="footer">
 
         <p>
-            KAAP BANK — Bank Transaction Management System
+            KAPA BANK — Bank Transaction Management System
         </p>
 
         <p>
@@ -79,6 +104,7 @@
         </p>
 
     </footer>
+
 
 </body>
 
