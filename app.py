@@ -147,6 +147,8 @@ def login():
     if "user_id" in session:
         if session.get("role") == "ADMIN":
             return redirect(url_for("admin_dashboard"))
+        if session.get("customer_id") == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com":
+            return redirect(url_for("transaction_control_page"))
         return redirect(url_for("customer_dashboard"))
 
     eval_creds = get_evaluation_credentials()
@@ -214,6 +216,8 @@ def login():
 
         if user['role'] == "ADMIN":
             return redirect(url_for("admin_dashboard"))
+        if user['customer_id'] == DEMO_ACCOUNT_ID or str(user['email']).lower() == "demo@kapabank.com":
+            return redirect(url_for("transaction_control_page"))
         return redirect(url_for("customer_dashboard"))
 
     except Exception as e:
@@ -358,12 +362,17 @@ def index():
         return redirect(url_for("login"))
     if session.get("role") == "ADMIN":
         return redirect(url_for("admin_dashboard"))
+    if session.get("customer_id") == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com":
+        return redirect(url_for("transaction_control_page"))
     return redirect(url_for("customer_dashboard"))
 
 
 @app.route("/dashboard")
 @customer_required
 def customer_dashboard():
+    if session.get("customer_id") == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com":
+        return redirect(url_for("transaction_control_page"))
+
     customer_id = session.get("customer_id")
     connection = get_connection()
     cursor = connection.cursor()
@@ -537,6 +546,14 @@ def customer_deposit():
         return render_error("Security Error", "Invalid CSRF token.", "/accounts", "Back to Accounts")
 
     customer_id = session.get("customer_id")
+    if customer_id == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com":
+        return render_error(
+            "Demo Mode Restricted",
+            "The Demo Account is restricted exclusively to DBMS Transaction Control demonstrations (SAVEPOINT, COMMIT, ROLLBACK). Standard ad-hoc deposits are disabled on this account.",
+            "/transaction-control",
+            "Open Transaction Control"
+        )
+
     account_id = request.form.get("account_id")
     amount_str = request.form.get("amount")
 
@@ -603,6 +620,14 @@ def customer_withdraw():
         return render_error("Security Error", "Invalid CSRF token.", "/accounts", "Back to Accounts")
 
     customer_id = session.get("customer_id")
+    if customer_id == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com":
+        return render_error(
+            "Demo Mode Restricted",
+            "The Demo Account is restricted exclusively to DBMS Transaction Control demonstrations (SAVEPOINT, COMMIT, ROLLBACK). Standard withdrawals are disabled on this account.",
+            "/transaction-control",
+            "Open Transaction Control"
+        )
+
     account_id = request.form.get("account_id")
     amount_str = request.form.get("amount")
 
@@ -670,6 +695,14 @@ def customer_withdraw():
 @customer_required
 def customer_transfer():
     customer_id = session.get("customer_id")
+    if customer_id == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com":
+        return render_error(
+            "Demo Mode Restricted",
+            "The Demo Account is restricted exclusively to DBMS Transaction Control demonstrations (SAVEPOINT, COMMIT, ROLLBACK). General fund transfers are not permitted on this demonstration account.",
+            "/transaction-control",
+            "Open Transaction Control"
+        )
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -858,6 +891,9 @@ def customer_transactions():
 @app.route("/statements")
 @customer_required
 def customer_statements():
+    if session.get("is_demo") or session.get("customer_id") == DEMO_ACCOUNT_ID:
+        return redirect("/transaction-control")
+
     customer_id = session.get("customer_id")
     connection = get_connection()
     cursor = connection.cursor()
@@ -1626,34 +1662,65 @@ def admin_audit_log():
 
 
 # ============================================================
-# DBMS TRANSACTION CONTROL DEMONSTRATIONS (ADMIN AREA)
+# DBMS TRANSACTION CONTROL DEMONSTRATIONS (TCL & ACID)
 # ============================================================
 
+@app.route("/transaction-control")
 @app.route("/admin/transaction-control")
-@admin_required
-def admin_transaction_control():
+@login_required
+def transaction_control_page():
+    role = session.get("role")
+    cid = session.get("customer_id")
+    is_demo = (cid == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com")
+    
+    if role != "ADMIN" and not is_demo:
+        return render_error("Access Restricted", 
+                            "The Transaction Control demonstration is accessible only to the Administrator and the dedicated Demo Customer account.", 
+                            "/", "Return to Dashboard")
+
     connection = get_connection()
     cursor = connection.cursor()
     try:
         cursor.execute("SELECT account_id, account_number, balance FROM bank_accounts WHERE account_id = :1", (DEMO_ACCOUNT_ID,))
         account = dictfetchone(cursor)
         if not account:
-            return render_error("Demo Account Not Found", f"Demonstration account ID {DEMO_ACCOUNT_ID} is missing.", "/admin", "Back to Admin")
+            return render_error("Demo Account Not Found", f"Demonstration account ID {DEMO_ACCOUNT_ID} is missing.", "/", "Home")
+
+        cursor.execute("""
+            SELECT transaction_id, transaction_type, amount, status,
+                   TO_CHAR(FROM_TZ(transaction_date, 'UTC') AT TIME ZONE 'Asia/Kolkata', 'DD-MM-YYYY') AS display_date,
+                   TO_CHAR(FROM_TZ(transaction_date, 'UTC') AT TIME ZONE 'Asia/Kolkata', 'HH12:MI AM') AS display_time
+            FROM bank_transactions
+            WHERE account_id = :1
+            ORDER BY transaction_date DESC
+            FETCH FIRST 10 ROWS ONLY
+        """, (DEMO_ACCOUNT_ID,))
+        demo_txs = dictfetchall(cursor)
     except Exception as e:
         logger.error("Demo load error: %s", str(e), exc_info=True)
-        return render_error("Error", "Failed to load demo account.", "/admin", "Back to Admin")
+        return render_error("Error", "Failed to load demo account.", "/", "Home")
     finally:
         cursor.close()
         connection.close()
 
-    return render_template("admin/transaction_control.html", account=account)
+    is_admin = (role == "ADMIN")
+    return render_template("admin/transaction_control.html", account=account, demo_txs=demo_txs, is_admin=is_admin)
 
 
+@app.route("/transaction-control/commit", methods=["POST"])
 @app.route("/admin/transaction-control/commit", methods=["POST"])
-@admin_required
-def admin_demo_commit():
+@login_required
+def demo_commit():
+    role = session.get("role")
+    cid = session.get("customer_id")
+    is_demo = (cid == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com")
+    back_url = "/admin/transaction-control" if role == "ADMIN" else "/transaction-control"
+
     if not validate_csrf():
-        return render_error("Security Error", "Invalid CSRF token.", "/admin/transaction-control", "Back")
+        return render_error("Security Error", "Invalid CSRF token.", back_url, "Back")
+
+    if role != "ADMIN" and not is_demo:
+        return render_error("Access Forbidden", "Only Administrator and the Demo Customer can execute TCL operations.", back_url, "Back")
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -1677,23 +1744,32 @@ def admin_demo_commit():
             old_balance=old_balance,
             new_balance=new_balance,
             transaction_status='COMMITTED',
-            back_url="/admin/transaction-control",
+            back_url=back_url,
             back_label="Back to Transaction Control",
             transaction_demo=True
         )
     except Exception as e:
         connection.rollback()
-        return render_error("Commit Demo Failed", safe_error_message(e), "/admin/transaction-control", "Back")
+        return render_error("Commit Demo Failed", safe_error_message(e), back_url, "Back")
     finally:
         cursor.close()
         connection.close()
 
 
+@app.route("/transaction-control/rollback", methods=["POST"])
 @app.route("/admin/transaction-control/rollback", methods=["POST"])
-@admin_required
-def admin_demo_rollback():
+@login_required
+def demo_rollback():
+    role = session.get("role")
+    cid = session.get("customer_id")
+    is_demo = (cid == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com")
+    back_url = "/admin/transaction-control" if role == "ADMIN" else "/transaction-control"
+
     if not validate_csrf():
-        return render_error("Security Error", "Invalid CSRF token.", "/admin/transaction-control", "Back")
+        return render_error("Security Error", "Invalid CSRF token.", back_url, "Back")
+
+    if role != "ADMIN" and not is_demo:
+        return render_error("Access Forbidden", "Only Administrator and the Demo Customer can execute TCL operations.", back_url, "Back")
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -1715,23 +1791,32 @@ def admin_demo_rollback():
             old_balance=old_balance,
             new_balance=old_balance,
             transaction_status='ROLLED_BACK',
-            back_url="/admin/transaction-control",
+            back_url=back_url,
             back_label="Back to Transaction Control",
             transaction_demo=True
         )
     except Exception as e:
         connection.rollback()
-        return render_error("Rollback Demo Failed", safe_error_message(e), "/admin/transaction-control", "Back")
+        return render_error("Rollback Demo Failed", safe_error_message(e), back_url, "Back")
     finally:
         cursor.close()
         connection.close()
 
 
+@app.route("/transaction-control/savepoint", methods=["POST"])
 @app.route("/admin/transaction-control/savepoint", methods=["POST"])
-@admin_required
-def admin_demo_savepoint():
+@login_required
+def demo_savepoint():
+    role = session.get("role")
+    cid = session.get("customer_id")
+    is_demo = (cid == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com")
+    back_url = "/admin/transaction-control" if role == "ADMIN" else "/transaction-control"
+
     if not validate_csrf():
-        return render_error("Security Error", "Invalid CSRF token.", "/admin/transaction-control", "Back")
+        return render_error("Security Error", "Invalid CSRF token.", back_url, "Back")
+
+    if role != "ADMIN" and not is_demo:
+        return render_error("Access Forbidden", "Only Administrator and the Demo Customer can execute TCL operations.", back_url, "Back")
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -1764,23 +1849,32 @@ def admin_demo_savepoint():
             old_balance=old_balance,
             new_balance=old_balance + Decimal('1000'),
             transaction_status='COMMITTED',
-            back_url="/admin/transaction-control",
+            back_url=back_url,
             back_label="Back to Transaction Control",
             transaction_demo=True
         )
     except Exception as e:
         connection.rollback()
-        return render_error("Savepoint Demo Failed", safe_error_message(e), "/admin/transaction-control", "Back")
+        return render_error("Savepoint Demo Failed", safe_error_message(e), back_url, "Back")
     finally:
         cursor.close()
         connection.close()
 
 
+@app.route("/transaction-control/reset", methods=["POST"])
 @app.route("/admin/transaction-control/reset", methods=["POST"])
-@admin_required
-def admin_demo_reset():
+@login_required
+def demo_reset():
+    role = session.get("role")
+    cid = session.get("customer_id")
+    is_demo = (cid == DEMO_ACCOUNT_ID or str(session.get("email", "")).lower() == "demo@kapabank.com")
+    back_url = "/admin/transaction-control" if role == "ADMIN" else "/transaction-control"
+
     if not validate_csrf():
-        return render_error("Security Error", "Invalid CSRF token.", "/admin/transaction-control", "Back")
+        return render_error("Security Error", "Invalid CSRF token.", back_url, "Back")
+
+    if role != "ADMIN" and not is_demo:
+        return render_error("Access Forbidden", "Only Administrator and the Demo Customer can execute TCL operations.", back_url, "Back")
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -1796,12 +1890,12 @@ def admin_demo_reset():
             "Demo Account Reset Complete",
             "The demo account balance has been restored to INR 10,000.00 and all prior demonstration transactions were purged.",
             transaction_demo=True,
-            back_url="/admin/transaction-control",
+            back_url=back_url,
             back_label="Back to Transaction Control"
         )
     except Exception as e:
         connection.rollback()
-        return render_error("Reset Failed", safe_error_message(e), "/admin/transaction-control", "Back")
+        return render_error("Reset Failed", safe_error_message(e), back_url, "Back")
     finally:
         cursor.close()
         connection.close()

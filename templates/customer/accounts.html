@@ -12,10 +12,29 @@
       <p class="page-description">Review balances, make instant deposits or withdrawals, and inspect statement histories.</p>
     </div>
     <div class="page-header-actions">
-      <a href="/transfer" class="btn btn-primary">Transfer Funds &rarr;</a>
+      {% if current_user and current_user.is_demo %}
+        <a href="/transaction-control" class="btn btn-primary">Transaction Control (TCL) &rarr;</a>
+      {% else %}
+        <a href="/transfer" class="btn btn-primary">Transfer Funds &rarr;</a>
+      {% endif %}
     </div>
   </div>
 
+  {% if current_user and current_user.is_demo %}
+  <!-- Demo Account Notice -->
+  <div class="info-banner" style="margin-bottom: 24px; background: #fffbeb; border-color: #fde68a;">
+    <div class="info-icon" style="background: #d97706; color: white;">!</div>
+    <div style="flex: 1;">
+      <h3 style="color: #92400e; margin: 0 0 4px 0;">DBMS Transaction Control Demo Account</h3>
+      <p style="color: #78350f; margin: 0 0 10px 0;">
+        Account <strong>DEMO1001</strong> is exclusively configured for demonstrating database Transaction Control Language (<strong>SAVEPOINT</strong>, <strong>COMMIT</strong>, and <strong>ROLLBACK</strong>). Standard ad-hoc deposits, withdrawals, and transfers are disabled for this demonstration account.
+      </p>
+      <a href="/transaction-control" class="btn btn-sm btn-primary" style="background: #d97706; border-color: #d97706;">
+        Open Transaction Control (TCL) Panel &rarr;
+      </a>
+    </div>
+  </div>
+  {% else %}
   <!-- Quick Transaction Action Grid (Deposit & Withdraw) -->
   <div class="action-grid">
     <!-- Deposit Form Card -->
@@ -110,6 +129,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <!-- Accounts Table -->
   <section class="table-card">

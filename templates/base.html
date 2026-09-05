@@ -17,7 +17,7 @@
           <div class="nav-brand-icon" aria-hidden="true">K</div>
           <div class="nav-brand-text">
             <strong>KAPA BANK</strong>
-            <small>{% if current_user and current_user.role == 'ADMIN' %}ADMINISTRATIVE CONSOLE{% else %}ONLINE BANKING PORTAL{% endif %}</small>
+            <small>{% if current_user and current_user.role == 'ADMIN' %}ADMINISTRATIVE CONSOLE{% elif current_user and current_user.is_demo %}DBMS TRANSACTION CONTROL DEMO{% else %}ONLINE BANKING PORTAL{% endif %}</small>
           </div>
         </a>
 
@@ -43,8 +43,20 @@
                 <span class="badge badge-danger">ADMIN</span>
                 <a href="/logout" class="nav-link logout-btn" title="Sign out of Administrator console">Logout</a>
               </div>
+            {% elif current_user.is_demo %}
+              <!-- Dedicated Demo Account Navigation (TCL Demonstrations Only) -->
+              <a href="/transaction-control" class="nav-link {% if request.path in ['/', '/dashboard', '/transaction-control'] %}active{% endif %}">Transaction Control (TCL)</a>
+              <a href="/accounts/21" class="nav-link {% if request.path == '/accounts/21' %}active{% endif %}">Demo Account (DEMO1001)</a>
+              <a href="/transactions" class="nav-link {% if request.path == '/transactions' %}active{% endif %}">Audit Trail</a>
+              <a href="/profile" class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a>
+
+              <div class="nav-user-badge customer">
+                <span class="badge badge-success">DEMO (TCL ONLY)</span>
+                <span class="user-greeting">{{ current_user.name }}</span>
+                <a href="/logout" class="nav-link logout-btn" title="Sign out of demo account">Logout</a>
+              </div>
             {% else %}
-              <!-- Customer Navigation Links -->
+              <!-- Standard Customer Navigation Links -->
               <a href="/" class="nav-link {% if request.path in ['/', '/dashboard'] %}active{% endif %}">Dashboard</a>
               <a href="/accounts" class="nav-link {% if '/accounts' in request.path %}active{% endif %}">My Accounts</a>
               <a href="/transfer" class="nav-link {% if request.path == '/transfer' %}active{% endif %}">Transfer Funds</a>

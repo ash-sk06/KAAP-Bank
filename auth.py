@@ -30,12 +30,15 @@ def get_current_user():
     """Retrieves authenticated user summary from the session."""
     if "user_id" not in session:
         return None
+    cid = session.get("customer_id")
+    is_demo = (cid == 21) or (str(session.get("email", "")).lower() == "demo@kapabank.com")
     return {
         "user_id": session.get("user_id"),
         "email": session.get("email"),
         "role": session.get("role"),
-        "customer_id": session.get("customer_id"),
-        "name": session.get("user_name", "User")
+        "customer_id": cid,
+        "name": session.get("user_name", "User"),
+        "is_demo": is_demo
     }
 
 def login_required(f):
