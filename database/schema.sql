@@ -6,9 +6,9 @@ CREATE TABLE customers (
     email VARCHAR2(100) NOT NULL,
     phone VARCHAR2(15) NOT NULL,
     address VARCHAR2(200),
-    CONSTRAINT pk_customers PRIMARY KEY (customer_id),
-    CONSTRAINT uq_customer_email UNIQUE (email),
-    CONSTRAINT uq_customer_phone UNIQUE (phone)
+    CONSTRAINT pk_customers PRIMARY KEY (customer_id), -- Primary key for customers
+    CONSTRAINT uq_customer_email UNIQUE (email), -- Ensure unique email
+    CONSTRAINT uq_customer_phone UNIQUE (phone) -- Ensure unique phone
 );
 
 CREATE TABLE bank_accounts (
@@ -19,13 +19,13 @@ CREATE TABLE bank_accounts (
     balance NUMBER(15,2) DEFAULT 0 NOT NULL,
     status VARCHAR2(20) DEFAULT 'ACTIVE' NOT NULL,
     created_date DATE DEFAULT SYSDATE NOT NULL,
-    CONSTRAINT pk_bank_accounts PRIMARY KEY (account_id),
+    CONSTRAINT pk_bank_accounts PRIMARY KEY (account_id), -- Primary key for bank accounts
     CONSTRAINT fk_account_customer FOREIGN KEY (customer_id)
-        REFERENCES customers(customer_id),
-    CONSTRAINT uq_account_number UNIQUE (account_number),
-    CONSTRAINT chk_account_type CHECK (account_type IN ('SAVINGS', 'CURRENT')),
-    CONSTRAINT chk_account_balance CHECK (balance >= 0),
-    CONSTRAINT chk_account_status CHECK (status IN ('ACTIVE', 'BLOCKED', 'CLOSED'))
+        REFERENCES customers(customer_id), -- Foreign key linking account to customer
+    CONSTRAINT uq_account_number UNIQUE (account_number), -- Ensure unique account number
+    CONSTRAINT chk_account_type CHECK (account_type IN ('SAVINGS', 'CURRENT')), -- Restrict account type
+    CONSTRAINT chk_account_balance CHECK (balance >= 0), -- Ensure non-negative balance
+    CONSTRAINT chk_account_status CHECK (status IN ('ACTIVE', 'BLOCKED', 'CLOSED')) -- Restrict account status
 );
 
 CREATE TABLE bank_transactions (
@@ -35,9 +35,9 @@ CREATE TABLE bank_transactions (
     amount NUMBER(15,2) NOT NULL,
     transaction_date TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
     status VARCHAR2(20) DEFAULT 'COMMITTED' NOT NULL,
-    CONSTRAINT pk_bank_transactions PRIMARY KEY (transaction_id),
+    CONSTRAINT pk_bank_transactions PRIMARY KEY (transaction_id), -- Primary key for bank transactions
     CONSTRAINT fk_transaction_account FOREIGN KEY (account_id)
-        REFERENCES bank_accounts(account_id),
+        REFERENCES bank_accounts(account_id), -- Foreign key linking transaction to account
     CONSTRAINT chk_transaction_type CHECK (
         transaction_type IN (
             'DEPOSIT',
@@ -45,11 +45,11 @@ CREATE TABLE bank_transactions (
             'TRANSFER_IN',
             'TRANSFER_OUT'
         )
-    ),
-    CONSTRAINT chk_transaction_amount CHECK (amount > 0),
+    ), -- Restrict transaction type
+    CONSTRAINT chk_transaction_amount CHECK (amount > 0), -- Ensure positive transaction amount
     CONSTRAINT chk_transaction_status CHECK (
         status IN ('COMMITTED', 'ROLLED_BACK', 'FAILED')
-    )
+    ) -- Restrict transaction status
 );
 
 CREATE TABLE bank_transfers (
@@ -59,14 +59,47 @@ CREATE TABLE bank_transfers (
     amount NUMBER(15,2) NOT NULL,
     transfer_date TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
     status VARCHAR2(20) DEFAULT 'COMMITTED' NOT NULL,
-    CONSTRAINT pk_bank_transfers PRIMARY KEY (transfer_id),
+    CONSTRAINT pk_bank_transfers PRIMARY KEY (transfer_id), -- Primary key for bank transfers
     CONSTRAINT fk_transfer_from FOREIGN KEY (from_account)
-        REFERENCES bank_accounts(account_id),
+        REFERENCES bank_accounts(account_id), -- Foreign key linking to sender account
     CONSTRAINT fk_transfer_to FOREIGN KEY (to_account)
-        REFERENCES bank_accounts(account_id),
-    CONSTRAINT chk_transfer_amount CHECK (amount > 0),
+        REFERENCES bank_accounts(account_id), -- Foreign key linking to receiver account
+    CONSTRAINT chk_transfer_amount CHECK (amount > 0), -- Ensure positive transfer amount
     CONSTRAINT chk_transfer_status CHECK (
         status IN ('COMMITTED', 'ROLLED_BACK', 'FAILED')
-    ),
-    CONSTRAINT chk_different_accounts CHECK (from_account <> to_account)
+    ), -- Restrict transfer status
+    CONSTRAINT chk_different_accounts CHECK (from_account <> to_account) -- Prevent self-transfer
 );
+
+CREATE INDEX idx_transactions_account ON bank_transactions(account_id);
+CREATE INDEX idx_transfers_from ON bank_transfers(from_account);
+CREATE INDEX idx_transfers_to ON bank_transfers(to_account);
+CREATE INDEX idx_transactions_date ON bank_transactions(transaction_date DESC);
+
+CREATE VIEW account_summary AS
+SELECT 
+    a.account_id,
+    a.account_number,
+    a.account_type,
+    a.balance,
+    a.status,
+    a.created_date,
+    c.customer_id,
+    c.name AS customer_name,
+    c.email
+FROM bank_accounts a
+JOIN customers c ON a.customer_id = c.customer_id;
+
+CREATE VIEW transaction_history AS
+SELECT 
+    t.transaction_id,
+    t.account_id,
+    a.account_number,
+    t.transaction_type,
+    t.amount,
+    t.transaction_date,
+    TO_CHAR(FROM_TZ(t.transaction_date, 'UTC') AT TIME ZONE 'Asia/Kolkata', 'DD-MM-YYYY') AS display_date,
+    TO_CHAR(FROM_TZ(t.transaction_date, 'UTC') AT TIME ZONE 'Asia/Kolkata', 'HH12:MI AM') AS display_time,
+    t.status
+FROM bank_transactions t
+JOIN bank_accounts a ON t.account_id = a.account_id;

@@ -3,238 +3,170 @@
 {% block title %}Dashboard | KAPA Bank{% endblock %}
 
 {% block content %}
+<div class="page-container">
+  
+  <!-- Welcome -->
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">BANKING OPERATIONS</p>
+      <h1>Transaction Management</h1>
+      <p class="page-description">Manage customers, accounts and banking transactions from one secure platform.</p>
+    </div>
+  </div>
 
-<div class="dashboard-container">
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zm-7 8a7 7 0 1114 0H3z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">{{ customer_count }}</div>
+        <div class="stat-label">Total Customers</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 1L2 6v1h16V6L10 1zM4 9v6h2V9H4zm4 0v6h2V9H8zm4 0v6h2V9h-2zm-8 8v1h16v-1H4z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">{{ account_count }}</div>
+        <div class="stat-label">Total Accounts</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple">
+        <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M7 3h6v2H9.5c.8.6 1.4 1.5 1.5 2.5H13v2h-2c-.2 1.7-1.5 3-3.2 3.4L12 17h-2.5L5 12.5V11h2c1.1 0 2-.7 2.3-1.5H7V7.5h2.3C9 6.7 8.1 6 7 6H7V3z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">₹{{ "{:,.2f}".format(total_balance) }}</div>
+        <div class="stat-label">Total Balance</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange">
+        <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 8.4l-3.2 1.9-.8-1.5L10 9V5h1.5v5.4z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">{{ transaction_count }}</div>
+        <div class="stat-label">Transactions</div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Welcome -->
-
-    <section class="welcome-section">
-
-        <div>
-
-            <p class="eyebrow">
-                BANKING OPERATIONS
-            </p>
-
-            <h1>
-                Transaction Management
-            </h1>
-
-            <p class="welcome-text">
-                Manage customers, accounts and banking
-                transactions from one secure platform.
-            </p>
-
+  <!-- Quick Actions -->
+  <section>
+    <p class="eyebrow">QUICK ACCESS</p>
+    <h2>Banking Operations</h2>
+    <div class="dashboard-grid">
+      <a href="/customers" class="dashboard-card">
+        <div class="dashboard-icon">
+          <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zm-7 8a7 7 0 1114 0H3z"/></svg>
         </div>
-
-    </section>
-
-
-    <!-- Quick Access -->
-
-    <section>
-
-        <div class="section-heading">
-
-            <div>
-                <p class="eyebrow">QUICK ACCESS</p>
-
-                <h2>
-                    Banking Operations
-                </h2>
-            </div>
-
+        <h3>Customers</h3>
+        <p>Manage customer profiles and personal details.</p>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </a>
+      <a href="/accounts" class="dashboard-card">
+        <div class="dashboard-icon">
+          <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 1L2 6v1h16V6L10 1zM4 9v6h2V9H4zm4 0v6h2V9H8zm4 0v6h2V9h-2zm-8 8v1h16v-1H4z"/></svg>
         </div>
-
-
-        <div class="dashboard-grid">
-
-
-            <a href="/customers"
-               class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    👤
-                </div>
-
-                <div>
-
-                    <h3>
-                        Customers
-                    </h3>
-
-                    <p>
-                        Add and manage customer information.
-                    </p>
-
-                </div>
-
-                <span class="card-arrow">
-                    →
-                </span>
-
-            </a>
-
-
-            <a href="/accounts"
-               class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    🏦
-                </div>
-
-                <div>
-
-                    <h3>
-                        Accounts
-                    </h3>
-
-                    <p>
-                        View accounts and manage balances.
-                    </p>
-
-                </div>
-
-                <span class="card-arrow">
-                    →
-                </span>
-
-            </a>
-
-
-            <a href="/accounts"
-               class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    ₹
-                </div>
-
-                <div>
-
-                    <h3>
-                        Deposit & Withdrawal
-                    </h3>
-
-                    <p>
-                        Perform account transactions.
-                    </p>
-
-                </div>
-
-                <span class="card-arrow">
-                    →
-                </span>
-
-            </a>
-
-
-            <a href="/transfer"
-               class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    ↔
-                </div>
-
-                <div>
-
-                    <h3>
-                        Fund Transfer
-                    </h3>
-
-                    <p>
-                        Transfer funds between accounts.
-                    </p>
-
-                </div>
-
-                <span class="card-arrow">
-                    →
-                </span>
-
-            </a>
-
-
-            <a href="/transactions"
-               class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    ≡
-                </div>
-
-                <div>
-
-                    <h3>
-                        Transaction History
-                    </h3>
-
-                    <p>
-                        Review completed transactions.
-                    </p>
-
-                </div>
-
-                <span class="card-arrow">
-                    →
-                </span>
-
-            </a>
-
-
-            <a href="/transaction-control"
-               class="dashboard-card">
-
-                <div class="dashboard-icon">
-                    ✓
-                </div>
-
-                <div>
-
-                    <h3>
-                        Transaction Control
-                    </h3>
-
-                    <p>
-                        Demonstrate COMMIT, ROLLBACK and SAVEPOINT.
-                    </p>
-
-                </div>
-
-                <span class="card-arrow">
-                    →
-                </span>
-
-            </a>
-
-
+        <h3>Accounts</h3>
+        <p>View and manage bank accounts.</p>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </a>
+      <a href="/accounts" class="dashboard-card">
+        <div class="dashboard-icon">
+          <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M7 3h6v2H9.5c.8.6 1.4 1.5 1.5 2.5H13v2h-2c-.2 1.7-1.5 3-3.2 3.4L12 17h-2.5L5 12.5V11h2c1.1 0 2-.7 2.3-1.5H7V7.5h2.3C9 6.7 8.1 6 7 6H7V3z"/></svg>
         </div>
-
-    </section>
-
-
-    <!-- Transaction Management -->
-
-    <section class="info-banner">
-
-        <div class="info-icon">
-            ✓
+        <h3>Deposit & Withdrawal</h3>
+        <p>Process account deposits and withdrawals.</p>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </a>
+      <a href="/transfer" class="dashboard-card">
+        <div class="dashboard-icon">
+          <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M13 3l4 4-4 4v-3H3V6h10V3zM7 17l-4-4 4-4v3h10v2H7v3z"/></svg>
         </div>
-
-        <div>
-
-            <h3>
-                Transaction Management Enabled
-            </h3>
-
-            <p>
-                Banking operations use database transactions
-                with COMMIT and ROLLBACK to maintain data
-                consistency.
-            </p>
-
+        <h3>Fund Transfer</h3>
+        <p>Transfer funds securely between accounts.</p>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </a>
+      <a href="/transactions" class="dashboard-card">
+        <div class="dashboard-icon">
+          <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 8.4l-3.2 1.9-.8-1.5L10 9V5h1.5v5.4z"/></svg>
         </div>
+        <h3>Transaction History</h3>
+        <p>View and filter transaction logs.</p>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </a>
+      <a href="/transaction-control" class="dashboard-card">
+        <div class="dashboard-icon">
+          <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M7 7l-5 5 5 5v-3h4a6 6 0 016 6v-2a4 4 0 00-4-4H7V7z"/></svg>
+        </div>
+        <h3>Transaction Control</h3>
+        <p>Demo COMMIT, ROLLBACK and SAVEPOINT.</p>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
 
-    </section>
+  <!-- Recent Transactions -->
+  <section class="table-card">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">RECENT ACTIVITY</p>
+        <h2>Latest Transactions</h2>
+      </div>
+      <a href="/transactions" class="btn btn-sm btn-secondary">View All →</a>
+    </div>
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Recent bank transactions</caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Account</th>
+            <th scope="col">Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Date</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in recent_transactions %}
+          <tr>
+            <td><strong>#{{ t.transaction_id }}</strong></td>
+            <td>{{ t.account_number }}</td>
+            <td>
+              <span class="badge {% if t.transaction_type in ['DEPOSIT','TRANSFER_IN'] %}badge-success{% else %}badge-warning{% endif %}">{{ t.transaction_type }}</span>
+            </td>
+            <td><strong>₹{{ "{:,.2f}".format(t.amount) }}</strong></td>
+            <td>
+              <time datetime="{{ t.display_date }}">{{ t.display_date }}</time><br>
+              <small class="text-muted">{{ t.display_time }} IST</small>
+            </td>
+            <td>
+              <span class="badge {% if t.status == 'COMMITTED' %}badge-success{% elif t.status == 'ROLLED_BACK' %}badge-warning{% else %}badge-danger{% endif %}">{{ t.status }}</span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="table-empty">No transactions recorded yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <div class="info-icon" aria-hidden="true">✓</div>
+    <div>
+      <h3>Transaction Management Enabled</h3>
+      <p>Banking operations use database transactions with COMMIT and ROLLBACK to maintain data consistency.</p>
+    </div>
+  </div>
 
 </div>
-
 {% endblock %}

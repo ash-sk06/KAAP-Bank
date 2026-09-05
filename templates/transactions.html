@@ -3,151 +3,99 @@
 {% block title %}Transactions | KAPA Bank{% endblock %}
 
 {% block content %}
-
 <div class="page-container">
-
-    <!-- Page Header -->
-    <div class="page-header">
-
-        <div>
-            <p class="eyebrow">TRANSACTION RECORDS</p>
-
-            <h1>All Transactions</h1>
-        </div>
-
-        <a href="/accounts" class="small-button">
-            Bank Accounts →
-        </a>
-
+  
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">TRANSACTION LOG</p>
+      <h1>Transaction History</h1>
     </div>
-
-
-    <!-- Transaction Table -->
-    <section class="table-card">
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>TRANSACTION ID</th>
-                        <th>ACCOUNT ID</th>
-                        <th>TRANSACTION TYPE</th>
-                        <th>AMOUNT</th>
-                        <th>DATE & TIME</th>
-                        <th>STATUS</th>
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% for transaction in transactions %}
-
-                    <tr>
-
-                        <!-- Transaction ID -->
-                        <td>
-                            <strong>#{{ transaction[0] }}</strong>
-                        </td>
-
-
-                        <!-- Account ID -->
-                        <td>
-                            {{ transaction[1] }}
-                        </td>
-
-
-                        <!-- Transaction Type -->
-                        <td>
-
-                            <span class="transaction-type">
-                                {{ transaction[2] }}
-                            </span>
-
-                        </td>
-
-
-                        <!-- Amount -->
-                        <td>
-
-                            <strong class="balance">
-                                ₹{{ "%.2f"|format(transaction[3]) }}
-                            </strong>
-
-                        </td>
-
-
-                        <!-- Date and Time -->
-                        <td>
-
-                            <div class="transaction-date">
-                                {{ transaction[4] }}
-                            </div>
-
-                            <div class="transaction-time">
-                                {{ transaction[5] }} IST
-                            </div>
-
-                        </td>
-
-
-                        <!-- Status -->
-                        <td>
-
-                            <span class="status-badge">
-                                {{ transaction[6] }}
-                            </span>
-
-                        </td>
-
-                    </tr>
-
-                    {% else %}
-
-                    <tr>
-
-                        <td colspan="6" style="text-align: center;">
-                            No transactions recorded yet.
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </section>
-
-
-    <!-- Navigation -->
-    <div class="page-links">
-
-        <a href="/accounts" class="secondary-button">
-            ← Bank Accounts
-        </a>
-
-        <a href="/transfer" class="secondary-button">
-            Fund Transfer →
-        </a>
-
-        <a href="/customers" class="secondary-button">
-            Customers
-        </a>
-
-        <a href="/" class="secondary-button">
-            Dashboard
-        </a>
-
+    <div class="header-actions">
+      <a href="/reports" class="btn btn-primary">View Reports</a>
     </div>
+  </div>
+
+  <div class="search-filter-bar" style="margin-bottom: 24px;">
+    <form method="GET" action="/transactions" style="display: flex; gap: 12px; width: 100%; flex-wrap: wrap;">
+      <div class="search-input-wrapper" style="flex: 1; min-width: 250px; position: relative;">
+        <label for="q" class="sr-only">Search Transactions</label>
+        <span style="position: absolute; left: 12px; top: 12px; color: #64748b;" aria-hidden="true">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M8 3a5 5 0 104.4 7.4l4.3 4.3 1-1-4.3-4.3A5 5 0 008 3zm0 1.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z"/></svg>
+        </span>
+        <input type="text" id="q" name="q" class="search-input" value="{{ search_query|default('') }}" placeholder="Search by account number or ID..." style="width: 100%; padding-left: 40px; height: 44px; border-radius: 8px; border: 1px solid #e2e8f0;">
+      </div>
+      
+      <div style="display: flex; gap: 12px;">
+        <label for="type" class="sr-only">Filter by Type</label>
+        <select id="type" name="type" class="filter-select" style="height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; background: white;">
+          <option value="">All Types</option>
+          <option value="DEPOSIT" {% if filter_type == 'DEPOSIT' %}selected{% endif %}>Deposit</option>
+          <option value="WITHDRAWAL" {% if filter_type == 'WITHDRAWAL' %}selected{% endif %}>Withdrawal</option>
+          <option value="TRANSFER_IN" {% if filter_type == 'TRANSFER_IN' %}selected{% endif %}>Transfer In</option>
+          <option value="TRANSFER_OUT" {% if filter_type == 'TRANSFER_OUT' %}selected{% endif %}>Transfer Out</option>
+        </select>
+        
+        <label for="status" class="sr-only">Filter by Status</label>
+        <select id="status" name="status" class="filter-select" style="height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; background: white;">
+          <option value="">All Statuses</option>
+          <option value="COMMITTED" {% if filter_status == 'COMMITTED' %}selected{% endif %}>Committed</option>
+          <option value="ROLLED_BACK" {% if filter_status == 'ROLLED_BACK' %}selected{% endif %}>Rolled Back</option>
+          <option value="FAILED" {% if filter_status == 'FAILED' %}selected{% endif %}>Failed</option>
+        </select>
+        
+        <button type="submit" class="btn btn-primary">Filter</button>
+        {% if search_query or filter_type or filter_status %}
+        <a href="/transactions" class="btn btn-secondary">Clear</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <section class="table-card">
+    <div class="table-header">
+      <h2>Transaction Records</h2>
+    </div>
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Comprehensive list of banking transactions</caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Account</th>
+            <th scope="col">Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Date &amp; Time</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transactions %}
+          <tr>
+            <td><strong>#{{ t.transaction_id }}</strong></td>
+            <td>
+              <a href="/accounts/{{ t.account_id }}" style="color: #2563eb; text-decoration: none;">{{ t.account_number }}</a>
+            </td>
+            <td>
+              <span class="badge {% if t.transaction_type in ['DEPOSIT','TRANSFER_IN'] %}badge-success{% else %}badge-warning{% endif %}">{{ t.transaction_type }}</span>
+            </td>
+            <td><strong>₹{{ "{:,.2f}".format(t.amount) }}</strong></td>
+            <td>
+              <time datetime="{{ t.display_date }}">{{ t.display_date }}</time>
+              <br><small class="text-muted">{{ t.display_time }} IST</small>
+            </td>
+            <td>
+              <span class="badge {% if t.status == 'COMMITTED' %}badge-success{% elif t.status == 'ROLLED_BACK' %}badge-warning{% else %}badge-danger{% endif %}">{{ t.status }}</span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="table-empty">No transactions found matching your criteria.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
 
 </div>
-
 {% endblock %}

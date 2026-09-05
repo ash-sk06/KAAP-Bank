@@ -3,110 +3,70 @@
 {% block title %}Fund Transfer | KAPA Bank{% endblock %}
 
 {% block content %}
-
 <div class="page-container">
-
-    <div class="page-header">
-        <p class="eyebrow">BANKING OPERATIONS</p>
-
-        <h1>Fund Transfer</h1>
-
-        <p class="page-description">
-            Transfer funds securely between active KAPA BANK accounts.
-        </p>
+  
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">MONEY TRANSFER</p>
+      <h1>Fund Transfer</h1>
     </div>
+    <div class="header-actions">
+      <a href="/accounts" class="btn btn-secondary">View Accounts</a>
+    </div>
+  </div>
 
-
-    <div class="transfer-container">
-
-        <section class="form-card">
-
-            <div class="card-heading">
-
-                <div class="action-icon">
-                    ↔
-                </div>
-
-                <div>
-                    <h2>Transfer Money</h2>
-
-                    <p>
-                        Move funds from one account to another.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <form action="{{ url_for('transfer') }}" method="POST">
-
-                <div class="form-group">
-
-                    <label>From Account ID</label>
-
-                    <input
-                        type="number"
-                        name="from_account"
-                        placeholder="Enter sender account ID"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>To Account ID</label>
-
-                    <input
-                        type="number"
-                        name="to_account"
-                        placeholder="Enter receiver account ID"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>Transfer Amount</label>
-
-                    <input
-                        type="number"
-                        name="amount"
-                        step="0.01"
-                        min="0.01"
-                        placeholder="₹ 0.00"
-                        required
-                    >
-
-                </div>
-
-
-                <button type="submit">
-                    Transfer Money
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <div class="page-links">
-
-            <a href="/accounts" class="secondary-button">
-                ← Bank Accounts
-            </a>
-
-            <a href="/transactions" class="secondary-button">
-                Transaction History →
-            </a>
-
+  <div class="dashboard-grid" style="display: flex; justify-content: center; margin-bottom: 32px;">
+    <!-- Transfer Form -->
+    <div class="card form-card" style="width: 100%; max-width: 600px;">
+      <div class="card-header">
+        <div class="card-heading">
+          <div class="action-icon" style="background: #eff6ff; color: #2563eb; padding: 8px; border-radius: 8px; margin-right: 12px;">
+            <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M13 3l4 4-4 4v-3H3V6h10V3zM7 17l-4-4 4-4v3h10v2H7v3z"/></svg>
+          </div>
+          <h2 style="margin: 0; font-size: 18px;">Transfer Funds Between Accounts</h2>
         </div>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/transfer">
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="from_account_id">From Account <span class="required-mark" aria-hidden="true">*</span></label>
+            <select id="from_account_id" name="from_account" required aria-required="true" style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; margin-top: 4px; background: white;">
+              <option value="">Select Origin Account...</option>
+              {% for a in accounts %}
+              {% if a.status == 'ACTIVE' %}
+              <option value="{{ a.account_id }}">{{ a.account_number }} - {{ a.customer_name }} (₹{{ "{:,.2f}".format(a.balance) }})</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div style="display: flex; justify-content: center; margin: 8px 0; color: #94a3b8;">
+            <svg width="24" height="24" fill="currentColor" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L15.17 11H4v2h11.17l-4.58 4.59L12 19l8-8-8-8z"/></svg>
+          </div>
 
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="to_account_id">To Account <span class="required-mark" aria-hidden="true">*</span></label>
+            <select id="to_account_id" name="to_account" required aria-required="true" style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; margin-top: 4px; background: white;">
+              <option value="">Select Destination Account...</option>
+              {% for a in accounts %}
+              {% if a.status == 'ACTIVE' %}
+              <option value="{{ a.account_id }}">{{ a.account_number }} - {{ a.customer_name }} (₹{{ "{:,.2f}".format(a.balance) }})</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group" style="margin-top: 16px;">
+            <label for="transfer_amount">Transfer Amount (₹) <span class="required-mark" aria-hidden="true">*</span></label>
+            <input type="number" step="0.01" min="1" id="transfer_amount" name="amount" required aria-required="true" style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; margin-top: 4px;" placeholder="Enter amount to transfer">
+          </div>
+          
+          <div class="form-actions" style="margin-top: 32px;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; height: 48px; font-size: 16px;">Complete Transfer</button>
+          </div>
+        </form>
+      </div>
     </div>
-
+  </div>
 </div>
-
 {% endblock %}

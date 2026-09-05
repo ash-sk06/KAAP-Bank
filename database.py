@@ -55,3 +55,22 @@ def get_connection():
     )
 
     return connection
+
+
+def dictfetchall(cursor):
+    """Converts cursor results to list of dicts with lowercase column names"""
+    if cursor.description is None:
+        return []
+    columns = [col[0].lower() for col in cursor.description]
+    return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+
+def dictfetchone(cursor):
+    """Converts single row to dict, returns None if no row"""
+    if cursor.description is None:
+        return None
+    row = cursor.fetchone()
+    if row is None:
+        return None
+    columns = [col[0].lower() for col in cursor.description]
+    return dict(zip(columns, row))

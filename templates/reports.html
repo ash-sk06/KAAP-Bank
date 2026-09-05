@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Reports | KAPA Bank{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">DATABASE REPORTS</p>
+      <h1>Analytics &amp; Reports</h1>
+      <p class="page-description">SQL-driven analytics demonstrating GROUP BY, aggregate functions, and JOIN queries.</p>
+    </div>
+    <div class="header-actions">
+      <a href="/transactions" class="btn btn-secondary">Transactions</a>
+      <a href="/accounts" class="btn btn-secondary">Accounts</a>
+    </div>
+  </div>
+
+  <div class="info-banner">
+    <div class="info-icon" aria-hidden="true">✓</div>
+    <div>
+      <p>All data is queried directly from Oracle Database using SQL aggregate functions.</p>
+    </div>
+  </div>
+
+  <div class="report-grid stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-bottom: 40px;">
+    <div class="report-card stat-card" style="box-shadow: none; border: 1px solid #e2e8f0; padding: 24px;">
+      <div class="stat-info">
+        <div class="stat-label" style="margin-bottom: 8px; font-size: 14px;">Total Deposits</div>
+        <div class="report-value stat-value" style="color: #059669;">₹{{ "{:,.2f}".format(total_deposits) }}</div>
+      </div>
+    </div>
+    <div class="report-card stat-card" style="box-shadow: none; border: 1px solid #e2e8f0; padding: 24px;">
+      <div class="stat-info">
+        <div class="stat-label" style="margin-bottom: 8px; font-size: 14px;">Total Withdrawals</div>
+        <div class="report-value stat-value" style="color: #d97706;">₹{{ "{:,.2f}".format(total_withdrawals) }}</div>
+      </div>
+    </div>
+    <div class="report-card stat-card" style="box-shadow: none; border: 1px solid #e2e8f0; padding: 24px;">
+      <div class="stat-info">
+        <div class="stat-label" style="margin-bottom: 8px; font-size: 14px;">Total Transfers</div>
+        <div class="report-value stat-value" style="color: #2563eb;">₹{{ "{:,.2f}".format(total_transfers) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 40px;">
+    
+    <!-- Transaction Type Breakdown -->
+    <div class="card table-card" style="margin-bottom: 0;">
+      <div class="card-header" style="border-bottom: 1px solid #e2e8f0; padding: 20px 24px;">
+        <h2 style="margin: 0; font-size: 18px;">Transaction Type Breakdown</h2>
+      </div>
+      <div class="table-container">
+        <table style="margin: 0;">
+          <caption class="sr-only">Aggregate data by transaction type</caption>
+          <thead>
+            <tr>
+              <th scope="col" style="background: white;">Type</th>
+              <th scope="col" style="background: white; text-align: right;">Count</th>
+              <th scope="col" style="background: white; text-align: right;">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in transaction_type_counts %}
+            <tr>
+              <td>
+                <span class="badge {% if row.transaction_type in ['DEPOSIT','TRANSFER_IN'] %}badge-success{% else %}badge-warning{% endif %}">{{ row.transaction_type }}</span>
+              </td>
+              <td style="text-align: right;">{{ row.count }}</td>
+              <td style="text-align: right;"><strong>₹{{ "{:,.2f}".format(row.total) }}</strong></td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="3" class="table-empty">No transaction data available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Account Distribution -->
+    <div class="card table-card" style="margin-bottom: 0;">
+      <div class="card-header" style="border-bottom: 1px solid #e2e8f0; padding: 20px 24px;">
+        <h2 style="margin: 0; font-size: 18px;">Account Distribution</h2>
+      </div>
+      <div class="table-container">
+        <table style="margin: 0;">
+          <caption class="sr-only">Aggregate data by account type</caption>
+          <thead>
+            <tr>
+              <th scope="col" style="background: white;">Account Type</th>
+              <th scope="col" style="background: white; text-align: right;">Count</th>
+              <th scope="col" style="background: white; text-align: right;">Total Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in account_type_counts %}
+            <tr>
+              <td><span class="badge badge-info">{{ row.account_type }}</span></td>
+              <td style="text-align: right;">{{ row.count }}</td>
+              <td style="text-align: right;"><strong>₹{{ "{:,.2f}".format(row.total_balance) }}</strong></td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="3" class="table-empty">No account data available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Top Accounts -->
+  <section class="table-card">
+    <div class="table-header">
+      <h2>Top Accounts by Balance</h2>
+    </div>
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Highest balance accounts</caption>
+        <thead>
+          <tr>
+            <th scope="col" style="width: 80px; text-align: center;">Rank</th>
+            <th scope="col">Account Number</th>
+            <th scope="col">Customer Name</th>
+            <th scope="col" style="text-align: right;">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in top_accounts %}
+          <tr>
+            <td style="text-align: center;">
+              <span style="display: inline-block; width: 28px; height: 28px; line-height: 28px; border-radius: 50%; background: {% if loop.index == 1 %}#fef3c7; color: #b45309;{% elif loop.index == 2 %}#f1f5f9; color: #475569;{% elif loop.index == 3 %}#ffedd5; color: #c2410c;{% else %}#f8fafc; color: #94a3b8;{% endif %} font-weight: bold;">
+                {{ loop.index }}
+              </span>
+            </td>
+            <td><strong>{{ row.account_number }}</strong></td>
+            <td>{{ row.customer_name }}</td>
+            <td style="text-align: right; color: #059669; font-size: 1.1em;"><strong>₹{{ "{:,.2f}".format(row.balance) }}</strong></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" class="table-empty">No account data available.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

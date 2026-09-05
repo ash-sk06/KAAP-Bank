@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Account {{ account.account_number }} | KAPA Bank{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">ACCOUNT DETAILS</p>
+      <h1>Account {{ account.account_number }}</h1>
+    </div>
+    <div class="header-actions">
+      <a href="/accounts" class="btn btn-secondary">← Back to Accounts</a>
+    </div>
+  </div>
+
+  <div class="dashboard-grid" style="margin-bottom: 32px;">
+    <!-- Account Info -->
+    <div class="card">
+      <div class="card-header">
+        <h2 style="margin: 0; font-size: 18px;">Account Information</h2>
+      </div>
+      <div class="card-body">
+        <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="detail-item">
+            <div class="detail-label text-muted">Account Number</div>
+            <div class="detail-value" style="font-size: 1.1em;"><strong>{{ account.account_number }}</strong></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label text-muted">Customer Name</div>
+            <div class="detail-value">
+              <a href="/customers/{{ account.customer_id }}" style="color: #2563eb; text-decoration: none;">{{ account.customer_name }}</a>
+            </div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label text-muted">Account Type</div>
+            <div class="detail-value"><span class="badge badge-info">{{ account.account_type }}</span></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label text-muted">Status</div>
+            <div class="detail-value">
+              <span class="badge {% if account.status == 'ACTIVE' %}badge-success{% else %}badge-danger{% endif %}">{{ account.status }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label text-muted">Current Balance</div>
+            <div class="detail-value" style="font-size: 1.25em; color: #1e40af;"><strong>₹{{ "{:,.2f}".format(account.balance) }}</strong></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label text-muted">Created Date</div>
+            <div class="detail-value">{{ account.created_date.strftime('%b %d, %Y') if account.created_date else '-' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Account Actions & Summary -->
+    <div class="card">
+      <div class="card-header">
+        <h2 style="margin: 0; font-size: 18px;">Quick Actions</h2>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+          <a href="/accounts" class="btn btn-primary" style="flex: 1; text-align: center;">Deposit</a>
+          <a href="/accounts" class="btn btn-secondary" style="flex: 1; text-align: center;">Withdraw</a>
+          <a href="/transfer" class="btn btn-secondary" style="flex: 1; text-align: center;">Transfer</a>
+        </div>
+        
+        <h3 style="font-size: 14px; color: #64748b; margin-bottom: 12px; text-transform: uppercase;">Transaction Summary</h3>
+        <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="stat-card" style="box-shadow: none; border: 1px solid #e2e8f0; padding: 16px;">
+            <div class="stat-info">
+              <div class="stat-value" style="font-size: 20px; color: #059669;">₹{{ "{:,.2f}".format(total_deposits) }}</div>
+              <div class="stat-label">Total Deposits</div>
+            </div>
+          </div>
+          <div class="stat-card" style="box-shadow: none; border: 1px solid #e2e8f0; padding: 16px;">
+            <div class="stat-info">
+              <div class="stat-value" style="font-size: 20px; color: #d97706;">₹{{ "{:,.2f}".format(total_withdrawals) }}</div>
+              <div class="stat-label">Total Withdrawals</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="table-card">
+    <div class="table-header">
+      <h2>Transaction History</h2>
+    </div>
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Transaction history for account {{ account.account_number }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Date</th>
+            <th scope="col">Time</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transactions %}
+          <tr>
+            <td><strong>#{{ t.transaction_id }}</strong></td>
+            <td>
+              <span class="badge {% if t.transaction_type in ['DEPOSIT','TRANSFER_IN'] %}badge-success{% else %}badge-warning{% endif %}">{{ t.transaction_type }}</span>
+            </td>
+            <td><strong>₹{{ "{:,.2f}".format(t.amount) }}</strong></td>
+            <td>
+              <time datetime="{{ t.display_date }}">{{ t.display_date }}</time>
+            </td>
+            <td><small class="text-muted">{{ t.display_time }} IST</small></td>
+            <td>
+              <span class="badge {% if t.status == 'COMMITTED' %}badge-success{% elif t.status == 'ROLLED_BACK' %}badge-warning{% else %}badge-danger{% endif %}">{{ t.status }}</span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="table-empty">No transactions recorded for this account.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

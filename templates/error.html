@@ -1,54 +1,28 @@
 {% extends "base.html" %}
 
-{% block title %}Transaction Failed | KAPA Bank{% endblock %}
+{% block title %}{{ title }} | KAPA Bank{% endblock %}
 
 {% block content %}
-
-<div class="page-container">
-
-    <div class="error-container">
-
-        <div class="error-card">
-
-            <div class="error-icon">
-                !
-            </div>
-
-            <p class="eyebrow">TRANSACTION FAILED</p>
-
-            <h1>{{ title }}</h1>
-
-            <p class="error-message">
-                {{ message }}
-            </p>
-
-            <div class="error-info">
-
-                <strong>Transaction not completed</strong>
-
-                <p>
-                    No changes were made to the account balance.
-                    The transaction has been rolled back safely.
-                </p>
-
-            </div>
-
-            <div class="error-actions">
-
-                <a href="/accounts" class="primary-button">
-                    ← Back to Accounts
-                </a>
-
-                <a href="/transfer" class="secondary-button">
-                    Try Again
-                </a>
-
-            </div>
-
-        </div>
-
+<div class="page-container feedback-container">
+  <div class="feedback-card">
+    
+    <div class="feedback-icon feedback-icon-error">
+      <svg width="32" height="32" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
     </div>
-
+    
+    <p class="eyebrow" style="color: #dc2626;">OPERATION FAILED</p>
+    <h1>{{ title }}</h1>
+    <p class="feedback-message">{{ message }}</p>
+    
+    <div class="feedback-note error">
+      <p>The requested operation could not be completed. No changes were made to the database state.</p>
+    </div>
+    
+    <div class="feedback-actions">
+      <a href="{{ back_url|default('/') }}" class="btn btn-primary">{{ back_label|default('Dashboard') }}</a>
+      <a href="/" class="btn btn-secondary">Dashboard</a>
+    </div>
+    
+  </div>
 </div>
-
 {% endblock %}
