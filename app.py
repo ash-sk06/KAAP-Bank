@@ -114,7 +114,15 @@ def login():
 
     if request.method == "GET":
         next_url = request.args.get("next", "")
-        return render_template("login.html", next_url=next_url)
+        email = request.args.get("email", "").strip().lower()
+        password = ""
+        if email == "admin@kapabank.com":
+            password = "Admin@Kapa2026"
+        elif email == "demo@kapabank.com":
+            password = "Demo@123"
+        elif email in ("rahul@example.com", "kanishka.jayakumar2025@vitstudent.ac.in"):
+            password = "Customer@123"
+        return render_template("login.html", next_url=next_url, email=email, password=password)
 
     # POST Login
     if not validate_csrf():
@@ -185,6 +193,11 @@ def logout():
         log_audit("LOGOUT", entity_type="USER", entity_id=uid, details="User logged out")
     session.clear()
     return redirect(url_for("login"))
+
+
+@app.route("/credentials")
+def demo_credentials():
+    return render_template("credentials.html")
 
 
 @app.route("/register", methods=["GET", "POST"])

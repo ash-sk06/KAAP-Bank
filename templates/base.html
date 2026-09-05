@@ -60,6 +60,7 @@
           {% else %}
             <!-- Unauthenticated Links -->
             <a href="/login" class="nav-link {% if request.path == '/login' %}active{% endif %}">Sign In</a>
+            <a href="/credentials" class="nav-link {% if request.path == '/credentials' %}active{% endif %}">Demo Credentials</a>
             <a href="/register" class="btn btn-primary btn-sm">Open Account</a>
           {% endif %}
         </div>
@@ -74,7 +75,7 @@
   <footer class="footer" role="contentinfo">
     <div class="footer-container">
       <p><strong>KAPA BANK</strong> — Bank Transaction Management System</p>
-      <p>College DBMS Academic Project | Powered by Oracle Autonomous Database &amp; Flask</p>
+      <p>College DBMS Academic Project | Powered by Oracle Autonomous Database &amp; Flask | <a href="/credentials" class="footer-cred-link">Demo Credentials</a></p>
       <p class="text-muted"><small>&copy; {{ now_year }} KAPA Bank. Demonstration Banking Portal. Passwords securely hashed with Werkzeug.</small></p>
     </div>
   </footer>
