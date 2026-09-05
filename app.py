@@ -105,10 +105,10 @@ def render_error(title, message, back_url='/', back_label='Return to Dashboard')
 def get_evaluation_credentials():
     """Fetches real-time demo/evaluation credentials from the database for display on login and credentials directory."""
     creds = {
-        'admin': {'email': 'admin@kapabank.com', 'password': 'Admin@Kapa2026', 'role': 'ADMIN'},
-        'demo': {'email': 'demo@kapabank.com', 'password': 'Demoacc@123', 'role': 'CUSTOMER', 'customer_id': 21},
-        'rahul': {'email': 'rahul@example.com', 'password': 'Customer@123', 'role': 'CUSTOMER', 'customer_id': 1},
-        'kanishka': {'email': 'kanishka.jayakumar2025@vitstudent.ac.in', 'password': 'Customer@123', 'role': 'CUSTOMER', 'customer_id': 2},
+        'admin': {'email': 'admin@kapabank.com', 'password': 'Admin@Kapa2026', 'role': 'ADMIN', 'customer_name': 'System Administrator'},
+        'demo': {'email': 'demo@kapabank.com', 'password': 'Demoacc@123', 'role': 'CUSTOMER', 'customer_id': 21, 'customer_name': 'Demo Customer', 'accounts': 'DEMO1001'},
+        'rahul': {'email': 'rahul@example.com', 'password': 'Customer@123', 'role': 'CUSTOMER', 'customer_id': 1, 'customer_name': 'Rahul Kumar', 'accounts': 'KAPA1001, KAPA1002'},
+        'kanishka': {'email': 'kanishka.jayakumar2025@vitstudent.ac.in', 'password': 'Customer@123', 'role': 'CUSTOMER', 'customer_id': 2, 'customer_name': 'Kanishka', 'accounts': 'KAPA2001'},
         'all_users': []
     }
     try:
@@ -134,6 +134,9 @@ def get_evaluation_credentials():
                 u.user_id ASC
         """)
         rows = dictfetchall(cursor)
+        for r in rows:
+            if r.get('role') == 'ADMIN' and not r.get('customer_name'):
+                r['customer_name'] = 'System Administrator'
         creds['all_users'] = rows
         for r in rows:
             em = r['email']
@@ -142,12 +145,19 @@ def get_evaluation_credentials():
                 continue
             if em == 'admin@kapabank.com':
                 creds['admin']['password'] = pwd
+                creds['admin']['customer_name'] = r.get('customer_name')
             elif em == 'demo@kapabank.com':
                 creds['demo']['password'] = pwd
+                creds['demo']['customer_name'] = r.get('customer_name')
+                creds['demo']['accounts'] = r.get('accounts')
             elif em == 'rahul@example.com':
                 creds['rahul']['password'] = pwd
+                creds['rahul']['customer_name'] = r.get('customer_name')
+                creds['rahul']['accounts'] = r.get('accounts')
             elif 'kanishka' in em:
                 creds['kanishka']['password'] = pwd
+                creds['kanishka']['customer_name'] = r.get('customer_name')
+                creds['kanishka']['accounts'] = r.get('accounts')
         cursor.close()
         connection.close()
     except Exception as e:

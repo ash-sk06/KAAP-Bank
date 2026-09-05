@@ -69,23 +69,38 @@ class CompleteFeatureAuditTests(unittest.TestCase):
         self.assertIn('/login', res.headers['Location'])
 
     def test_02_login_page_renders_with_academic_banner(self):
-        """GET /login must render academic disclaimer, CSRF token, and quick creds modal."""
+        """GET /login must render academic disclaimer, CSRF token, and quick creds modal with full names."""
         res = self.client.get('/login')
         self.assertEqual(res.status_code, 200)
         self.assertIn(b'Sign In to KAPA Bank', res.data)
         self.assertIn(b'ACADEMIC COURSEWORK PROJECT', res.data)
         self.assertIn(b'View Demo &amp; Evaluation Credentials', res.data)
         self.assertIn(b'csrf_token', res.data)
+        self.assertIn(b'System Administrator', res.data)
+        self.assertIn(b'Rahul Kumar', res.data)
 
     def test_03_credentials_directory(self):
-        """GET /credentials must display all evaluation accounts with live dynamic passwords."""
+        """GET /credentials must display all evaluation accounts with full names and live dynamic passwords."""
         res = self.client.get('/credentials')
         self.assertEqual(res.status_code, 200)
         self.assertIn(b'KAPA Bank Test Credentials', res.data)
         self.assertIn(b'admin@kapabank.com', res.data)
+        self.assertIn(b'System Administrator', res.data)
+        self.assertIn(b'Demo Customer', res.data)
         self.assertIn(b'demo@kapabank.com', res.data)
         self.assertIn(b'DEMO (TCL ONLY)', res.data)
+        self.assertIn(b'Rahul Kumar', res.data)
         self.assertIn(b'rahul@example.com', res.data)
+
+    def test_03b_register_page_renders_show_password_toggles(self):
+        """GET /register must render show password options for both password and confirm_password."""
+        res = self.client.get('/register')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Demo Customer Registration', res.data)
+        self.assertIn(b'password-toggle-wrapper', res.data)
+        self.assertIn(b'password-toggle-btn', res.data)
+        self.assertIn(b"togglePasswordVisibility('password'", res.data)
+        self.assertIn(b"togglePasswordVisibility('confirm_password'", res.data)
 
     def test_04_auth_failure_invalid_credentials(self):
         """POST /login with wrong password returns friendly error."""

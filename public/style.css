@@ -447,6 +447,55 @@ input:invalid:not(:placeholder-shown) {
     border-color: #dc2626;
 }
 
+/* Password Visibility Toggle */
+.password-toggle-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-toggle-wrapper input {
+    padding-right: 80px;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #475569;
+    transition: all 0.15s ease;
+    user-select: none;
+    line-height: 1;
+    height: 28px;
+}
+
+.password-toggle-btn:hover {
+    color: #2563eb;
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.password-toggle-btn:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 1px;
+}
+
+.password-toggle-btn svg {
+    flex-shrink: 0;
+}
+
 /* ========= BUTTONS ========= */
 .btn {
     display: inline-flex;
@@ -1348,6 +1397,41 @@ tbody tr:last-child td {
     letter-spacing: 0.5px;
 }
 
+.demo-cred-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+
+.demo-cred-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.3;
+}
+
+.demo-cred-user-email {
+    font-size: 12.5px;
+    color: #475569;
+    word-break: break-all;
+}
+
+.demo-cred-accounts {
+    font-size: 11.5px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.demo-cred-accounts code {
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 600;
+}
+
 .demo-cred-item strong {
     font-size: 14px;
     color: #0f172a;
@@ -1512,20 +1596,53 @@ tbody tr:last-child td {
 
 .demo-cred-top {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
+    gap: 12px;
+}
+
+.demo-cred-name-block {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.demo-cred-full-name {
+    font-size: 16.5px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.3;
 }
 
 .demo-cred-email {
-    font-size: 15px;
-    font-weight: 700;
-    color: #0f172a;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #475569;
     word-break: break-all;
 }
 
 .demo-cred-pass {
     font-size: 13px;
     color: #64748b;
+}
+
+.demo-cred-accounts-banner {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #475569;
+    margin: 2px 0;
+}
+
+.demo-cred-accounts-banner code {
+    background: #e2e8f0;
+    color: #0f172a;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
 .demo-cred-info {
