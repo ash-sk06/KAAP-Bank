@@ -1,14 +1,20 @@
 {% extends "base.html" %}
 
-{% block title %}Open an Account | KAPA Bank{% endblock %}
+{% block title %}Academic Demo Registration | KAPA Bank{% endblock %}
 
 {% block content %}
 <div class="auth-page-container">
   <div class="auth-card register-card">
     <div class="auth-header">
       <div class="auth-logo-badge" aria-hidden="true">K</div>
-      <h1>Open a KAPA Bank Account</h1>
-      <p class="auth-subtitle">Register your customer profile and instantly open an online banking account.</p>
+      <h1>Demo Customer Registration</h1>
+      <p class="auth-subtitle">Academic DBMS Demonstration Portal — VIT Coursework Evaluation</p>
+    </div>
+
+    <!-- Academic Project Notice -->
+    <div class="academic-banner-notice" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: #1e40af; line-height: 1.45;" role="note">
+      <strong>🎓 Academic Demonstration Notice:</strong>
+      This registration form is strictly for testing database customer insertion constraints in an educational DBMS laboratory. Do <strong>not</strong> enter sensitive real-world personal information.
     </div>
 
     {% if error %}

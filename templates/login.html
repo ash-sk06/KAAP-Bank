@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Sign In | KAPA Bank{% endblock %}
+{% block title %}Academic DBMS Demo | Sign In | KAPA Bank{% endblock %}
 
 {% block content %}
 <div class="auth-page-container">
@@ -8,7 +8,13 @@
     <div class="auth-header">
       <div class="auth-logo-badge" aria-hidden="true">K</div>
       <h1>Sign In to KAPA Bank</h1>
-      <p class="auth-subtitle">Access your personal banking portal or administrative console.</p>
+      <p class="auth-subtitle">Academic DBMS Demonstration Portal — VIT Coursework Evaluation</p>
+    </div>
+
+    <!-- Prominent Academic Project Notice to prevent automated crawler false positives -->
+    <div class="academic-banner-notice" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: #1e40af; line-height: 1.45;" role="note">
+      <strong>🎓 Academic Demonstration Notice:</strong>
+      This system is a student coursework project for database transaction management. It is <strong>NOT</strong> an operational financial institution. Do not enter personal real-world banking passwords. Use the evaluation credentials provided below.
     </div>
 
     {% if error %}
