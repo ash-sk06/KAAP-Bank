@@ -91,33 +91,19 @@
       <p class="demo-box-subtitle">Select any credential to autofill and sign in immediately:</p>
       
       <div class="demo-creds-grid">
-        <!-- Admin Credential -->
-        <div class="demo-cred-item" onclick="fillCreds('{{ eval_creds.admin.email }}', '{{ eval_creds.admin.password }}')" role="button" tabindex="0" title="Click to autofill Admin credentials">
-          <span class="badge badge-danger">ADMIN</span>
-          <strong>{{ eval_creds.admin.email }}</strong>
-          <small>Password: <span class="cred-pwd-val">{{ eval_creds.admin.password }}</span></small>
+        {% for u in eval_creds.all_users %}
+        <div class="demo-cred-item" onclick="fillCreds('{{ u.email }}', '{{ u.password }}')" role="button" tabindex="0" title="Click to autofill {{ u.customer_name or u.email }} credentials">
+          {% if u.role == 'ADMIN' %}
+            <span class="badge badge-danger">ADMIN</span>
+          {% elif u.customer_id == 21 %}
+            <span class="badge badge-success">DEMO (TCL ONLY)</span>
+          {% else %}
+            <span class="badge badge-info">CUSTOMER (ID {{ u.customer_id }})</span>
+          {% endif %}
+          <strong>{{ u.email }}</strong>
+          <small>Password: <span class="cred-pwd-val">{{ u.password }}</span></small>
         </div>
-
-        <!-- Demo Customer (ID 21) -->
-        <div class="demo-cred-item" onclick="fillCreds('{{ eval_creds.demo.email }}', '{{ eval_creds.demo.password }}')" role="button" tabindex="0" title="Click to autofill Demo Account (TCL Only) credentials">
-          <span class="badge badge-success">DEMO (TCL ONLY)</span>
-          <strong>{{ eval_creds.demo.email }}</strong>
-          <small>Password: <span class="cred-pwd-val">{{ eval_creds.demo.password }}</span></small>
-        </div>
-
-        <!-- Customer 1 (Rahul Kumar) -->
-        <div class="demo-cred-item" onclick="fillCreds('{{ eval_creds.rahul.email }}', '{{ eval_creds.rahul.password }}')" role="button" tabindex="0" title="Click to autofill Customer 1 credentials">
-          <span class="badge badge-info">CUSTOMER (ID 1)</span>
-          <strong>{{ eval_creds.rahul.email }}</strong>
-          <small>Password: <span class="cred-pwd-val">{{ eval_creds.rahul.password }}</span></small>
-        </div>
-
-        <!-- Customer 2 (Kanishka) -->
-        <div class="demo-cred-item" onclick="fillCreds('{{ eval_creds.kanishka.email }}', '{{ eval_creds.kanishka.password }}')" role="button" tabindex="0" title="Click to autofill Customer 2 credentials">
-          <span class="badge badge-purple">CUSTOMER (ID 2)</span>
-          <strong>{{ eval_creds.kanishka.email }}</strong>
-          <small>Password: <span class="cred-pwd-val">{{ eval_creds.kanishka.password }}</span></small>
-        </div>
+        {% endfor %}
       </div>
 
       <div class="modal-footer-hint">

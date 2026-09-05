@@ -106,22 +106,38 @@ def get_evaluation_credentials():
     """Fetches real-time demo/evaluation credentials from the database for display on login and credentials directory."""
     creds = {
         'admin': {'email': 'admin@kapabank.com', 'password': 'Admin@Kapa2026', 'role': 'ADMIN'},
-        'demo': {'email': 'demo@kapabank.com', 'password': 'Demo@123', 'role': 'CUSTOMER', 'customer_id': 21},
+        'demo': {'email': 'demo@kapabank.com', 'password': 'Demoacc@123', 'role': 'CUSTOMER', 'customer_id': 21},
         'rahul': {'email': 'rahul@example.com', 'password': 'Customer@123', 'role': 'CUSTOMER', 'customer_id': 1},
         'kanishka': {'email': 'kanishka.jayakumar2025@vitstudent.ac.in', 'password': 'Customer@123', 'role': 'CUSTOMER', 'customer_id': 2},
+        'all_users': []
     }
     try:
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute("""
-            SELECT LOWER(email) AS email, display_password, role, customer_id 
-            FROM users 
-            WHERE display_password IS NOT NULL
+            SELECT 
+                u.user_id,
+                LOWER(u.email) AS email,
+                u.display_password AS password,
+                u.role,
+                u.customer_id,
+                c.name AS customer_name,
+                (SELECT LISTAGG(account_number, ', ') WITHIN GROUP (ORDER BY account_id)
+                 FROM bank_accounts WHERE customer_id = u.customer_id) AS accounts
+            FROM users u
+            LEFT JOIN customers c ON u.customer_id = c.customer_id
+            WHERE u.display_password IS NOT NULL
+            ORDER BY 
+                CASE WHEN u.role = 'ADMIN' THEN 1
+                     WHEN u.customer_id = 21 THEN 2
+                     ELSE 3 END,
+                u.user_id ASC
         """)
         rows = dictfetchall(cursor)
+        creds['all_users'] = rows
         for r in rows:
             em = r['email']
-            pwd = r.get('display_password')
+            pwd = r.get('password')
             if not pwd:
                 continue
             if em == 'admin@kapabank.com':
