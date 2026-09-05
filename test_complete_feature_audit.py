@@ -11,6 +11,9 @@ Tests every feature of the application across all user roles:
 import unittest
 import os
 import sys
+import json
+import re
+import secrets
 from decimal import Decimal
 
 sys.path.insert(0, os.path.abspath('.'))
@@ -487,6 +490,64 @@ class CompleteFeatureAuditTests(unittest.TestCase):
         audit = self.client.get('/admin/audit-log')
         self.assertEqual(audit.status_code, 200)
         self.assertIn(b'Security Audit Trail', audit.data)
+
+    def test_22_new_customer_and_account_creation_lifecycle(self):
+        """Admin can provision a new customer and bank account, and the customer can login and view it."""
+        self.login_user('admin@kapabank.com', 'Admin@Kapa2026')
+
+        # 1. Add Customer
+        token = self.get_csrf()
+        unique_id = secrets.randbelow(900000) + 100000
+        test_email = f'user_{unique_id}@academicbank.com'
+        test_phone = f'98{unique_id:08d}'[:10]
+
+        cust_res = self.client.post('/admin/add-customer', data={
+            'name': 'Test New Account Holder',
+            'email': test_email,
+            'phone': test_phone,
+            'address': 'Academic Block 4, VIT',
+            'initial_password': 'Customer@123',
+            'csrf_token': token
+        }, follow_redirects=True)
+        self.assertEqual(cust_res.status_code, 200)
+        self.assertIn(b'Customer Registered', cust_res.data)
+
+        # Get customer ID
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT customer_id FROM customers WHERE LOWER(email) = :1', (test_email.lower(),))
+        cid = dictfetchone(cur)['customer_id']
+
+        # 2. Add Account
+        token = self.get_csrf()
+        test_acc_no = f'KAPA{secrets.randbelow(9000) + 1000}'
+        acc_res = self.client.post('/admin/add-account', data={
+            'customer_id': str(cid),
+            'account_number': test_acc_no,
+            'account_type': 'SAVINGS',
+            'csrf_token': token
+        }, follow_redirects=True)
+        self.assertEqual(acc_res.status_code, 200)
+        self.assertIn(b'Account Provisioned', acc_res.data)
+
+        # 3. Verify Customer Login and Dashboard
+        self.client.get('/logout')
+        dash = self.login_user(test_email, 'Customer@123')
+        self.assertEqual(dash.status_code, 200)
+        self.assertIn(b'Test New Account Holder', dash.data)
+        self.assertIn(test_acc_no.encode(), dash.data)
+
+        # 4. Clean up
+        cur.execute('SELECT account_id FROM bank_accounts WHERE account_number = :1', (test_acc_no,))
+        acc_row = dictfetchone(cur)
+        if acc_row:
+            cur.execute('DELETE FROM bank_transactions WHERE account_id = :1', (acc_row['account_id'],))
+            cur.execute('DELETE FROM bank_accounts WHERE account_number = :1', (test_acc_no,))
+        cur.execute('DELETE FROM users WHERE LOWER(email) = :1', (test_email.lower(),))
+        cur.execute('DELETE FROM customers WHERE customer_id = :1', (cid,))
+        conn.commit()
+        cur.close()
+        conn.close()
 
 if __name__ == '__main__':
     unittest.main()
