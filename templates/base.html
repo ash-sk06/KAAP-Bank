@@ -1,111 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        {% block title %}
-        KAPA Bank
-        {% endblock %}
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="/static/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KAPA Bank{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
-
-
 <body>
-
-    <nav class="navbar">
-
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
         <div class="nav-container">
-
-            <a href="/" class="brand">
-
-                <span class="brand-icon">
-                    K
-                </span>
-
-                <div class="brand-text">
-
-                    <strong>
-                        KAPA BANK
-                    </strong>
-
-                    <small>
-                        Transaction Management
-                    </small>
-
-                </div>
-
+            <a href="/" class="nav-brand">
+                <span class="nav-brand-icon" aria-hidden="true">K</span>
+                <span class="nav-brand-text"><strong>KAPA BANK</strong><small>Transaction Management</small></span>
             </a>
-
-
-            <div class="nav-links">
-
-                <a href="/">
-                    Dashboard
-                </a>
-
-                <a href="/customers">
-                    Customers
-                </a>
-
-                <a href="/accounts">
-                    Accounts
-                </a>
-
-                <a href="/transfer">
-                    Transfers
-                </a>
-
-                <a href="/transactions">
-                    Transactions
-                </a>
-
-                <a href="/transaction-control">
-                    Transaction Control
-                </a>
-
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+                <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+            </button>
+            <div class="nav-links" id="nav-links">
+                <a href="/" class="nav-link">Dashboard</a>
+                <a href="/customers" class="nav-link">Customers</a>
+                <a href="/accounts" class="nav-link">Accounts</a>
+                <a href="/transfer" class="nav-link">Transfers</a>
+                <a href="/transactions" class="nav-link">Transactions</a>
+                <a href="/reports" class="nav-link">Reports</a>
+                <a href="/transaction-control" class="nav-link">Transaction Control</a>
             </div>
-
         </div>
-
     </nav>
-
-
-    <main class="main-content">
-
-        {% block content %}
-
-        {% endblock %}
-
+    <main class="main-content" id="main-content" role="main">
+        {% block content %}{% endblock %}
     </main>
-
-
-    <footer class="footer">
-
-        <p>
-            KAPA BANK — Bank Transaction Management System
-        </p>
-
-        <p>
-            DBMS Application Project
-        </p>
-
+    <footer class="footer" role="contentinfo">
+        <p>KAPA BANK &mdash; Bank Transaction Management System</p>
+        <p>DBMS Application Project</p>
     </footer>
-
-
+    <script>
+        document.querySelector('.nav-toggle').addEventListener('click', function() {
+            const nav = document.getElementById('nav-links');
+            const expanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', !expanded);
+            nav.classList.toggle('open');
+        });
+    </script>
+    {% block scripts %}{% endblock %}
 </body>
-
 </html>

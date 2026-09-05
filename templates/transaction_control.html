@@ -3,307 +3,140 @@
 {% block title %}Transaction Control | KAPA Bank{% endblock %}
 
 {% block content %}
-
 <div class="page-container">
+  
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">DBMS TRANSACTION MANAGEMENT</p>
+      <h1>Transaction Control</h1>
+      <p class="page-description">Interactive demonstration of database transaction commands: COMMIT, ROLLBACK, and SAVEPOINT.</p>
+    </div>
+  </div>
 
+  <!-- Demo Account Card -->
+  <div class="demo-account-card">
+    <div class="demo-account-grid">
+      <div class="demo-stat">
+        <span>Demo Account</span>
+        <strong>{{ account.account_number }}</strong>
+      </div>
+      <div class="demo-stat">
+        <span>Current Balance</span>
+        <strong>₹{{ "{:,.2f}".format(account.balance) }}</strong>
+      </div>
+    </div>
+    <div style="padding: 12px 24px; border-top: 1px solid #e2e8f0; text-align: right;">
+      <form method="POST" action="/transaction-control/reset" style="display: inline;" onsubmit="return confirm('Reset demo account to ₹10,000?');">
+        <button type="submit" class="btn btn-sm btn-danger">
+          <svg width="16" height="16" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20" style="vertical-align: middle;"><path d="M10 2a8 8 0 00-8 8h3l-4 4-4-4h3a8 8 0 1116 0h-2A6 6 0 0010 4z"/></svg>
+          Reset Balance
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Transaction Demo Cards -->
+  <div class="action-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 48px;">
+    <!-- COMMIT -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-heading">
+          <div class="action-icon" style="background: #ecfdf5; color: #059669;">
+            <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M16.7 5.3a1 1 0 010 1.4l-8 8a1 1 0 01-1.4 0l-4-4a1 1 0 111.4-1.4L8 12.6l7.3-7.3a1 1 0 011.4 0z"/></svg>
+          </div>
+          <div>
+            <h2>COMMIT</h2>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="demo-description">Adds ₹1,000 to the account and permanently saves the transaction to the database.</p>
+        <form method="POST" action="/transaction-control/commit" onsubmit="return confirm('Execute COMMIT transaction?');">
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Execute COMMIT</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ROLLBACK -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-heading">
+          <div class="action-icon" style="background: #fffbeb; color: #d97706;">
+            <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M7 7l-5 5 5 5v-3h4a6 6 0 016 6v-2a4 4 0 00-4-4H7V7z"/></svg>
+          </div>
+          <div>
+            <h2>ROLLBACK</h2>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="demo-description">Temporarily adds ₹2,000 to the account, then immediately rolls back, undoing the change.</p>
+        <form method="POST" action="/transaction-control/rollback">
+          <button type="submit" class="btn btn-secondary" style="width: 100%;">Execute ROLLBACK</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- SAVEPOINT -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-heading">
+          <div class="action-icon">
+            <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="6"/></svg>
+          </div>
+          <div>
+            <h2>SAVEPOINT</h2>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="demo-description">Adds ₹1,000, creates a savepoint, adds another ₹2,000, then rolls back to the savepoint (only keeps first ₹1,000).</p>
+        <form method="POST" action="/transaction-control/savepoint" onsubmit="return confirm('Execute SAVEPOINT transaction?');">
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Execute SAVEPOINT</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACID Properties -->
+  <section>
     <div class="page-header">
-
-        <p class="eyebrow">DBMS TRANSACTION MANAGEMENT</p>
-
-        <h1>Transaction Control</h1>
-
-        <p class="page-description">
-            Execute real Oracle transaction operations and observe
-            COMMIT, ROLLBACK and SAVEPOINT behaviour.
-        </p>
-
+      <div>
+        <p class="eyebrow">DATABASE CONCEPTS</p>
+        <h2>ACID Properties</h2>
+      </div>
     </div>
-
-
-    <!-- Demo Account -->
-
-    <section class="table-card">
-
-        <div class="table-header">
-
-            <div>
-                <p class="eyebrow">DEMO ACCOUNT</p>
-
-                <h2>Transaction Control Test Account</h2>
-            </div>
-
-            <span class="status-badge">
-                ACTIVE
-            </span>
-
+    <div class="acid-grid">
+      <div class="acid-item">
+        <div class="acid-letter">A</div>
+        <div>
+          <b>Atomicity</b>
+          <p>All operations within a work unit are completed successfully; otherwise, the transaction is aborted and previous operations are rolled back.</p>
         </div>
-
-
-        <div class="demo-account">
-
-            <div>
-                <span>Account Number</span>
-                <strong>{{ account[0] }}</strong>
-            </div>
-
-            <div>
-                <span>Current Balance</span>
-                <strong>₹{{ "%.2f"|format(account[1]) }}</strong>
-            </div>
-
+      </div>
+      <div class="acid-item">
+        <div class="acid-letter" style="background: #ecfdf5; color: #059669;">C</div>
+        <div>
+          <b>Consistency</b>
+          <p>Ensures that the database properly changes states upon a successfully committed transaction, maintaining all defined rules.</p>
         </div>
-
-    </section>
-
-
-    <!-- Transaction Controls -->
-
-    <div class="action-grid">
-
-
-        <!-- COMMIT -->
-
-        <section class="form-card">
-
-            <div class="card-heading">
-
-                <div class="action-icon">
-                    ✓
-                </div>
-
-                <div>
-                    <h2>COMMIT</h2>
-
-                    <p>
-                        Permanently save a database change.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <div class="demo-description">
-
-                <p>
-                    Adds <strong>₹1,000</strong> to the demo account
-                    and permanently saves the change.
-                </p>
-
-            </div>
-
-
-            <form
-                action="{{ url_for('commit_demo') }}"
-                method="POST"
-            >
-
-                <button type="submit">
-                    Execute COMMIT
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <!-- ROLLBACK -->
-
-        <section class="form-card">
-
-            <div class="card-heading">
-
-                <div class="action-icon">
-                    ↶
-                </div>
-
-                <div>
-                    <h2>ROLLBACK</h2>
-
-                    <p>
-                        Undo an uncommitted database change.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <div class="demo-description">
-
-                <p>
-                    Temporarily adds <strong>₹2,000</strong> and then
-                    rolls the change back.
-                </p>
-
-            </div>
-
-
-            <form
-                action="{{ url_for('rollback_demo') }}"
-                method="POST"
-            >
-
-                <button type="submit">
-                    Execute ROLLBACK
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <!-- SAVEPOINT -->
-
-        <section class="form-card">
-
-            <div class="card-heading">
-
-                <div class="action-icon">
-                    ●
-                </div>
-
-                <div>
-                    <h2>SAVEPOINT</h2>
-
-                    <p>
-                        Roll back to a specific point.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="demo-description">
-
-                <p>
-                    Adds ₹1,000, creates a SAVEPOINT, adds ₹2,000,
-                    then rolls back only the second operation.
-                </p>
-
-            </div>
-
-
-            <form
-                action="{{ url_for('savepoint_demo') }}"
-                method="POST"
-            >
-
-                <button type="submit">
-                    Execute SAVEPOINT
-                </button>
-
-            </form>
-
-        </section>
-
+      </div>
+      <div class="acid-item">
+        <div class="acid-letter" style="background: #fffbeb; color: #d97706;">I</div>
+        <div>
+          <b>Isolation</b>
+          <p>Enables transactions to operate independently. Concurrent execution results in the same state as serial execution.</p>
+        </div>
+      </div>
+      <div class="acid-item">
+        <div class="acid-letter" style="background: #fef2f2; color: #dc2626;">D</div>
+        <div>
+          <b>Durability</b>
+          <p>Ensures that the result of a committed transaction persists in case of a system failure.</p>
+        </div>
+      </div>
     </div>
-
-
-    <!-- ACID -->
-
-    <section class="table-card">
-
-        <div class="table-header">
-
-            <div>
-
-                <p class="eyebrow">
-                    TRANSACTION PROPERTIES
-                </p>
-
-                <h2>ACID Properties</h2>
-
-            </div>
-
-        </div>
-
-
-        <div class="acid-grid">
-
-            <div class="acid-item">
-
-                <strong>A</strong>
-
-                <div>
-                    <b>Atomicity</b>
-
-                    <p>
-                        A transaction is completed fully or rolled back.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="acid-item">
-
-                <strong>C</strong>
-
-                <div>
-                    <b>Consistency</b>
-
-                    <p>
-                        Database constraints remain satisfied.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="acid-item">
-
-                <strong>I</strong>
-
-                <div>
-                    <b>Isolation</b>
-
-                    <p>
-                        Concurrent operations are controlled using locking.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="acid-item">
-
-                <strong>D</strong>
-
-                <div>
-                    <b>Durability</b>
-
-                    <p>
-                        Committed changes remain stored in the database.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <div class="page-links">
-
-        <a href="/accounts" class="secondary-button">
-            ← Bank Accounts
-        </a>
-
-        <a href="/transactions" class="secondary-button">
-            Transaction History →
-        </a>
-
-        <a href="/" class="secondary-button">
-            Dashboard
-        </a>
-
-    </div>
+  </section>
 
 </div>
-
 {% endblock %}

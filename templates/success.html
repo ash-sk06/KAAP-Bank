@@ -1,105 +1,85 @@
 {% extends "base.html" %}
 
-{% block title %}Transaction Successful | KAPA Bank{% endblock %}
+{% block title %}{{ title }} | KAPA Bank{% endblock %}
 
 {% block content %}
-
-<div class="page-container">
-
-    <div class="success-container">
-
-        <div class="success-card">
-
-            <!-- Success Icon -->
-            <div class="success-icon">✓</div>
-
-            <p class="eyebrow">TRANSACTION SUCCESSFUL</p>
-
-            <h1>{{ title }}</h1>
-
-            <p class="success-message">
-                {{ message }}
-            </p>
-
-
-            <!-- Transaction Information -->
-            <div class="success-info">
-
-                {% if amount %}
-                <div class="success-row">
-                    <span>Amount</span>
-                    <strong>₹{{ "%.2f"|format(amount) }}</strong>
-                </div>
-                {% endif %}
-
-
-                {% if from_account %}
-                <div class="success-row">
-                    <span>From Account</span>
-                    <strong>#{{ from_account }}</strong>
-                </div>
-                {% endif %}
-
-
-                {% if to_account %}
-                <div class="success-row">
-                    <span>To Account</span>
-                    <strong>#{{ to_account }}</strong>
-                </div>
-                {% endif %}
-
-
-                <div class="success-row">
-                    <span>Transaction Status</span>
-                    <strong class="success-status">COMMITTED</strong>
-                </div>
-
-            </div>
-
-
-            <!-- Success Message -->
-            <div class="success-note">
-
-                <strong>Transaction committed successfully</strong>
-
-                <p>
-                    All database changes have been saved successfully.
-                </p>
-
-            </div>
-
-
-            <!-- Buttons -->
-            <div class="success-actions">
-
-                {% if transaction_demo %}
-
-                    <a href="/transaction-control" class="primary-button">
-                        ← Back to Transaction Control
-                    </a>
-
-                    <a href="/transaction-control" class="secondary-button">
-                        Try Another Transaction
-                    </a>
-
-                {% else %}
-
-                    <a href="/accounts" class="primary-button">
-                        ← Back to Accounts
-                    </a>
-
-                    <a href="/transfer" class="secondary-button">
-                        Make Another Transfer
-                    </a>
-
-                {% endif %}
-
-            </div>
-
-        </div>
-
+<div class="page-container feedback-container">
+  <div class="feedback-card">
+    
+    <div class="feedback-icon feedback-icon-success">
+      <svg width="32" height="32" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M16.7 5.3a1 1 0 010 1.4l-8 8a1 1 0 01-1.4 0l-4-4a1 1 0 111.4-1.4L8 12.6l7.3-7.3a1 1 0 011.4 0z"/></svg>
     </div>
-
+    
+    <p class="eyebrow">{{ transaction_status|default('TRANSACTION SUCCESSFUL') }}</p>
+    <h1>{{ title }}</h1>
+    <p class="feedback-message">{{ message }}</p>
+    
+    {% if amount or from_account or to_account or old_balance or new_balance %}
+    <div class="feedback-info">
+      {% if amount %}
+      <div class="feedback-row">
+        <span>Amount</span>
+        <strong>₹{{ "{:,.2f}".format(amount) }}</strong>
+      </div>
+      {% endif %}
+      
+      {% if from_account %}
+      <div class="feedback-row">
+        <span>From Account</span>
+        <strong>#{{ from_account }}</strong>
+      </div>
+      {% endif %}
+      
+      {% if to_account %}
+      <div class="feedback-row">
+        <span>To Account</span>
+        <strong>#{{ to_account }}</strong>
+      </div>
+      {% endif %}
+      
+      {% if old_balance is defined and old_balance is not none %}
+      <div class="feedback-row">
+        <span>Previous Balance</span>
+        <strong>₹{{ "{:,.2f}".format(old_balance) }}</strong>
+      </div>
+      {% endif %}
+      
+      {% if new_balance is defined and new_balance is not none %}
+      <div class="feedback-row">
+        <span>New Balance</span>
+        <strong>₹{{ "{:,.2f}".format(new_balance) }}</strong>
+      </div>
+      {% endif %}
+      
+      <div class="feedback-row">
+        <span>Status</span>
+        <span class="badge {% if transaction_status == 'ROLLED_BACK' %}badge-warning{% elif transaction_status == 'UNCHANGED' %}badge-info{% else %}badge-success{% endif %}">{{ transaction_status|default('COMMITTED') }}</span>
+      </div>
+    </div>
+    {% endif %}
+    
+    <div class="feedback-note {% if transaction_status == 'ROLLED_BACK' %}warning{% elif transaction_status == 'UNCHANGED' %}info{% else %}success{% endif %}">
+      <p>
+        {% if transaction_status == 'ROLLED_BACK' %}
+          The transaction was simulated and successfully rolled back. No permanent changes were made to the database.
+        {% elif transaction_status == 'UNCHANGED' %}
+          The database state was restored.
+        {% else %}
+          The transaction has been successfully committed to the database.
+        {% endif %}
+      </p>
+    </div>
+    
+    <div class="feedback-actions">
+      <a href="{{ back_url|default('/') }}" class="btn btn-primary">{{ back_label|default('Go Back') }}</a>
+      
+      {% if transaction_demo %}
+      <a href="/transaction-control" class="btn btn-secondary">Transaction Control</a>
+      {% else %}
+      <a href="/" class="btn btn-secondary">Dashboard</a>
+      {% endif %}
+    </div>
+    
+  </div>
 </div>
-
 {% endblock %}

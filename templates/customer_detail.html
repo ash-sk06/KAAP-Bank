@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ customer.name }} | KAPA Bank{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">CUSTOMER PROFILE</p>
+      <h1>{{ customer.name }}</h1>
+    </div>
+    <div class="header-actions">
+      <a href="/customers" class="btn btn-secondary">← Back to Customers</a>
+    </div>
+  </div>
+
+  <div class="dashboard-grid" style="margin-bottom: 32px;">
+    <!-- Customer Details -->
+    <div class="card">
+      <div class="card-header">
+        <h2 style="margin: 0; font-size: 18px;">Contact Information</h2>
+      </div>
+      <div class="card-body">
+        <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="detail-item">
+            <div class="detail-label text-muted">Customer ID</div>
+            <div class="detail-value">#{{ customer.customer_id }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label text-muted">Name</div>
+            <div class="detail-value">{{ customer.name }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label text-muted">Email</div>
+            <div class="detail-value">{{ customer.email }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label text-muted">Phone</div>
+            <div class="detail-value">{{ customer.phone }}</div>
+          </div>
+          <div class="detail-item" style="grid-column: 1 / -1;">
+            <div class="detail-label text-muted">Address</div>
+            <div class="detail-value">{{ customer.address or '-' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Customer Stats -->
+    <div class="card">
+      <div class="card-header">
+        <h2 style="margin: 0; font-size: 18px;">Account Overview</h2>
+      </div>
+      <div class="card-body">
+        <div class="stats-grid" style="grid-template-columns: 1fr; gap: 16px;">
+          <div class="stat-card" style="box-shadow: none; border: 1px solid #e2e8f0;">
+            <div class="stat-icon success">
+              <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 1L2 6v1h16V6L10 1zM4 9v6h2V9H4zm4 0v6h2V9H8zm4 0v6h2V9h-2zm-8 8v1h16v-1H4z"/></svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ accounts|length }}</div>
+              <div class="stat-label">Total Accounts</div>
+            </div>
+          </div>
+          <div class="stat-card" style="box-shadow: none; border: 1px solid #e2e8f0;">
+            <div class="stat-icon warning">
+              <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 8.4l-3.2 1.9-.8-1.5L10 9V5h1.5v5.4z"/></svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ transaction_count }}</div>
+              <div class="stat-label">Total Transactions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="table-card">
+    <div class="table-header">
+      <h2>Bank Accounts</h2>
+    </div>
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Accounts belonging to {{ customer.name }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Account No</th>
+            <th scope="col">Type</th>
+            <th scope="col">Balance</th>
+            <th scope="col">Status</th>
+            <th scope="col">Created Date</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in accounts %}
+          <tr>
+            <td><strong>{{ a.account_number }}</strong></td>
+            <td><span class="badge badge-info">{{ a.account_type }}</span></td>
+            <td><strong>₹{{ "{:,.2f}".format(a.balance) }}</strong></td>
+            <td>
+              <span class="badge {% if a.status == 'ACTIVE' %}badge-success{% else %}badge-danger{% endif %}">{{ a.status }}</span>
+            </td>
+            <td>
+              <time datetime="{{ a.created_date.strftime('%Y-%m-%d') if a.created_date else '' }}">{{ a.created_date.strftime('%b %d, %Y') if a.created_date else '-' }}</time>
+            </td>
+            <td><a href="/accounts/{{ a.account_id }}" class="btn btn-sm btn-secondary">View Account</a></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="table-empty">No accounts found for this customer.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

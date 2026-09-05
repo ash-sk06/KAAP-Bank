@@ -3,224 +3,161 @@
 {% block title %}Accounts | KAPA Bank{% endblock %}
 
 {% block content %}
-
 <div class="page-container">
+  
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">ACCOUNT MANAGEMENT</p>
+      <h1>Bank Accounts</h1>
+    </div>
+    <div class="header-actions">
+      <a href="/customers" class="btn btn-primary">Create Account</a>
+    </div>
+  </div>
 
-    <div class="page-header">
-        <div>
-            <p class="eyebrow">ACCOUNT MANAGEMENT</p>
-            <h1>Bank Accounts</h1>
-            <p class="page-description">
-                Manage account balances and perform banking operations.
-            </p>
+  <div class="search-filter-bar" style="margin-bottom: 24px;">
+    <form method="GET" action="/accounts" style="display: flex; gap: 12px; width: 100%; flex-wrap: wrap;">
+      <div class="search-input-wrapper" style="flex: 1; min-width: 250px; position: relative;">
+        <label for="q" class="sr-only">Search Accounts</label>
+        <span style="position: absolute; left: 12px; top: 12px; color: #64748b;" aria-hidden="true">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M8 3a5 5 0 104.4 7.4l4.3 4.3 1-1-4.3-4.3A5 5 0 008 3zm0 1.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z"/></svg>
+        </span>
+        <input type="text" id="q" name="q" class="search-input" value="{{ search_query|default('') }}" placeholder="Search account number or customer name..." style="width: 100%; padding-left: 40px; height: 44px; border-radius: 8px; border: 1px solid #e2e8f0;">
+      </div>
+      
+      <div style="display: flex; gap: 12px;">
+        <label for="type" class="sr-only">Filter by Type</label>
+        <select id="type" name="type" class="filter-select" style="height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; background: white;">
+          <option value="">All Types</option>
+          <option value="SAVINGS" {% if filter_type == 'SAVINGS' %}selected{% endif %}>Savings</option>
+          <option value="CURRENT" {% if filter_type == 'CURRENT' %}selected{% endif %}>Current</option>
+        </select>
+        
+        <label for="status" class="sr-only">Filter by Status</label>
+        <select id="status" name="status" class="filter-select" style="height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; background: white;">
+          <option value="">All Statuses</option>
+          <option value="ACTIVE" {% if filter_status == 'ACTIVE' %}selected{% endif %}>Active</option>
+          <option value="CLOSED" {% if filter_status == 'CLOSED' %}selected{% endif %}>Closed</option>
+        </select>
+        
+        <button type="submit" class="btn btn-primary">Filter</button>
+        {% if search_query or filter_type or filter_status %}
+        <a href="/accounts" class="btn btn-secondary">Clear</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <div class="dashboard-grid" style="margin-bottom: 32px;">
+    <!-- Deposit -->
+    <div class="card form-card">
+      <div class="card-header">
+        <div class="card-heading">
+          <div class="action-icon" style="background: #ecfdf5; color: #059669; padding: 8px; border-radius: 8px; margin-right: 12px;">
+            <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M7 3h6v2H9.5c.8.6 1.4 1.5 1.5 2.5H13v2h-2c-.2 1.7-1.5 3-3.2 3.4L12 17h-2.5L5 12.5V11h2c1.1 0 2-.7 2.3-1.5H7V7.5h2.3C9 6.7 8.1 6 7 6H7V3z"/></svg>
+          </div>
+          <h2 style="margin: 0; font-size: 18px;">Cash Deposit</h2>
         </div>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/deposit">
+          <div class="form-group">
+            <label for="deposit_account_id">Account <span class="required-mark" aria-hidden="true">*</span></label>
+            <select id="deposit_account_id" name="account_id" required aria-required="true" style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; margin-top: 4px; background: white;">
+              <option value="">Select Account...</option>
+              {% for a in accounts %}
+              {% if a.status == 'ACTIVE' %}
+              <option value="{{ a.account_id }}">{{ a.account_number }} - {{ a.customer_name }} (₹{{ "{:,.2f}".format(a.balance) }})</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group" style="margin-top: 12px;">
+            <label for="deposit_amount">Amount (₹) <span class="required-mark" aria-hidden="true">*</span></label>
+            <input type="number" step="0.01" min="1" id="deposit_amount" name="amount" required aria-required="true" style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; margin-top: 4px;">
+          </div>
+          <div class="form-actions" style="margin-top: 24px;">
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Process Deposit</button>
+          </div>
+        </form>
+      </div>
     </div>
 
-
-    <!-- Transaction Actions -->
-
-    <div class="action-grid">
-
-        <section class="form-card">
-
-            <div class="card-heading">
-                <div class="action-icon">₹</div>
-
-                <div>
-                    <h2>Deposit Money</h2>
-                    <p>Add funds to an active account.</p>
-                </div>
-            </div>
-
-            <form action="{{ url_for('deposit') }}"
-                  method="POST">
-
-                <div class="form-group">
-
-                    <label>Account ID</label>
-
-                    <input
-                        type="number"
-                        name="account_id"
-                        placeholder="Enter account ID"
-                        required
-                    >
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>Amount</label>
-
-                    <input
-                        type="number"
-                        name="amount"
-                        step="0.01"
-                        min="0.01"
-                        placeholder="₹ 0.00"
-                        required
-                    >
-
-                </div>
-
-                <button type="submit">
-                    Deposit Money
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <section class="form-card">
-
-            <div class="card-heading">
-                <div class="action-icon">−</div>
-
-                <div>
-                    <h2>Withdraw Money</h2>
-                    <p>Withdraw funds from an active account.</p>
-                </div>
-            </div>
-
-            <form action="{{ url_for('withdraw') }}"
-                  method="POST">
-
-                <div class="form-group">
-
-                    <label>Account ID</label>
-
-                    <input
-                        type="number"
-                        name="account_id"
-                        placeholder="Enter account ID"
-                        required
-                    >
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>Amount</label>
-
-                    <input
-                        type="number"
-                        name="amount"
-                        step="0.01"
-                        min="0.01"
-                        placeholder="₹ 0.00"
-                        required
-                    >
-
-                </div>
-
-                <button type="submit">
-                    Withdraw Money
-                </button>
-
-            </form>
-
-        </section>
-
-    </div>
-
-
-    <!-- Accounts -->
-
-    <section class="table-card">
-
-        <div class="table-header">
-
-            <div>
-                <p class="eyebrow">ACCOUNT OVERVIEW</p>
-                <h2>All Bank Accounts</h2>
-            </div>
-
-            <a href="/customers" class="small-button">
-                + Create Account
-            </a>
-
+    <!-- Withdrawal -->
+    <div class="card form-card">
+      <div class="card-header">
+        <div class="card-heading">
+          <div class="action-icon" style="background: #fffbeb; color: #d97706; padding: 8px; border-radius: 8px; margin-right: 12px;">
+            <svg width="20" height="20" fill="currentColor" aria-hidden="true" viewBox="0 0 20 20"><path d="M7 3h6v2H9.5c.8.6 1.4 1.5 1.5 2.5H13v2h-2c-.2 1.7-1.5 3-3.2 3.4L12 17h-2.5L5 12.5V11h2c1.1 0 2-.7 2.3-1.5H7V7.5h2.3C9 6.7 8.1 6 7 6H7V3z"/></svg>
+          </div>
+          <h2 style="margin: 0; font-size: 18px;">Cash Withdrawal</h2>
         </div>
-
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Account ID</th>
-                        <th>Customer ID</th>
-                        <th>Account Number</th>
-                        <th>Type</th>
-                        <th>Balance</th>
-                        <th>Status</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    {% for account in accounts %}
-
-                    <tr>
-
-                        <td>
-                            <strong>#{{ account[0] }}</strong>
-                        </td>
-
-                        <td>
-                            {{ account[1] }}
-                        </td>
-
-                        <td>
-                            <strong>{{ account[2] }}</strong>
-                        </td>
-
-                        <td>
-                            <span class="account-type">
-                                {{ account[3] }}
-                            </span>
-                        </td>
-
-                        <td class="balance">
-                            ₹{{ "%.2f"|format(account[4]) }}
-                        </td>
-
-                        <td>
-                            <span class="status-badge">
-                                {{ account[5] }}
-                            </span>
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </section>
-
-
-    <!-- Navigation -->
-
-    <div class="page-links">
-
-        <a href="/transfer" class="secondary-button">
-            Fund Transfer →
-        </a>
-
-        <a href="/transactions" class="secondary-button">
-            Transaction History →
-        </a>
-
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/withdraw">
+          <div class="form-group">
+            <label for="withdraw_account_id">Account <span class="required-mark" aria-hidden="true">*</span></label>
+            <select id="withdraw_account_id" name="account_id" required aria-required="true" style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; margin-top: 4px; background: white;">
+              <option value="">Select Account...</option>
+              {% for a in accounts %}
+              {% if a.status == 'ACTIVE' %}
+              <option value="{{ a.account_id }}">{{ a.account_number }} - {{ a.customer_name }} (₹{{ "{:,.2f}".format(a.balance) }})</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group" style="margin-top: 12px;">
+            <label for="withdraw_amount">Amount (₹) <span class="required-mark" aria-hidden="true">*</span></label>
+            <input type="number" step="0.01" min="1" id="withdraw_amount" name="amount" required aria-required="true" style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 0 12px; margin-top: 4px;">
+          </div>
+          <div class="form-actions" style="margin-top: 24px;">
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Process Withdrawal</button>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
+
+  <section class="table-card">
+    <div class="table-header">
+      <h2>All Accounts</h2>
+    </div>
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">List of all bank accounts</caption>
+        <thead>
+          <tr>
+            <th scope="col">Account No</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Type</th>
+            <th scope="col">Balance</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in accounts %}
+          <tr>
+            <td><strong>{{ a.account_number }}</strong></td>
+            <td>
+              <a href="/customers/{{ a.customer_id }}" style="color: #2563eb; text-decoration: none;">{{ a.customer_name }}</a>
+            </td>
+            <td><span class="badge badge-info">{{ a.account_type }}</span></td>
+            <td><strong>₹{{ "{:,.2f}".format(a.balance) }}</strong></td>
+            <td>
+              <span class="badge {% if a.status == 'ACTIVE' %}badge-success{% else %}badge-danger{% endif %}">{{ a.status }}</span>
+            </td>
+            <td><a href="/accounts/{{ a.account_id }}" class="btn btn-sm btn-secondary">Details</a></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="table-empty">No accounts found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
 
 </div>
-
 {% endblock %}
