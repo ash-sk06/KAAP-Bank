@@ -79,15 +79,20 @@ The database comes pre-seeded with the following credentials for testing and eva
 - **Password:** `Admin@Kapa2026`
 - **Access:** Complete access to `/admin`, Customer Management, Account Status Controls, System Monitoring, Reports, Audit Trail, and ACID Demo.
 
-### Customer 1 (Rahul Kumar)
+### Demo Customer (Customer ID 21)
+- **Email:** `demo@kapabank.com`
+- **Password:** `Demo@123`
+- **Access:** Demonstrates customer banking portal on demonstration account `DEMO1001` (Account ID 21).
+
+### Customer (Rahul Kumar - Customer ID 1)
 - **Email:** `rahul@example.com`
 - **Password:** `Customer@123`
-- **Access:** Personal Customer Portal, My Accounts, Instant Deposits/Withdrawals, Domestic Transfers, PDF Statements.
+- **Access:** Personal Customer Portal, Accounts `KAPA1001` and `KAPA1002`, Instant Deposits/Withdrawals, Domestic Transfers, PDF Statements.
 
-### Customer 2 (Kanishka)
-- **Email:** `saikanish2007@gmail.com`
+### Customer (Kanishka - Customer ID 2)
+- **Email:** `kanishka.jayakumar2025@vitstudent.ac.in`
 - **Password:** `Customer@123`
-- **Access:** Personal Customer Portal (Used to verify customer data isolation against Customer 1).
+- **Access:** Personal Customer Portal, Account `KAPA2001` (Used to verify customer data isolation).
 
 *Note: You can also register a brand-new customer account anytime via the "Open Account" button (`/register`).*
 
