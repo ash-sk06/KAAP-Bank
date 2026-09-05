@@ -101,6 +101,43 @@ def render_error(title, message, back_url='/', back_label='Return to Dashboard')
     return render_template("error.html", title=title, message=message, back_url=back_url, back_label=back_label)
 
 
+def get_evaluation_credentials():
+    """Fetches real-time demo/evaluation credentials from the database for display on login and credentials directory."""
+    creds = {
+        'admin': {'email': 'admin@kapabank.com', 'password': 'Admin@Kapa2026', 'role': 'ADMIN'},
+        'demo': {'email': 'demo@kapabank.com', 'password': 'Demo@123', 'role': 'CUSTOMER', 'customer_id': 21},
+        'rahul': {'email': 'rahul@example.com', 'password': 'Customer@123', 'role': 'CUSTOMER', 'customer_id': 1},
+        'kanishka': {'email': 'kanishka.jayakumar2025@vitstudent.ac.in', 'password': 'Customer@123', 'role': 'CUSTOMER', 'customer_id': 2},
+    }
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT LOWER(email) AS email, display_password, role, customer_id 
+            FROM users 
+            WHERE display_password IS NOT NULL
+        """)
+        rows = dictfetchall(cursor)
+        for r in rows:
+            em = r['email']
+            pwd = r.get('display_password')
+            if not pwd:
+                continue
+            if em == 'admin@kapabank.com':
+                creds['admin']['password'] = pwd
+            elif em == 'demo@kapabank.com':
+                creds['demo']['password'] = pwd
+            elif em == 'rahul@example.com':
+                creds['rahul']['password'] = pwd
+            elif 'kanishka' in em:
+                creds['kanishka']['password'] = pwd
+        cursor.close()
+        connection.close()
+    except Exception as e:
+        logger.warning("Could not fetch realtime evaluation credentials: %s", str(e))
+    return creds
+
+
 # ============================================================
 # AUTHENTICATION & SESSION ROUTES
 # ============================================================
@@ -112,17 +149,18 @@ def login():
             return redirect(url_for("admin_dashboard"))
         return redirect(url_for("customer_dashboard"))
 
+    eval_creds = get_evaluation_credentials()
+
     if request.method == "GET":
         next_url = request.args.get("next", "")
         email = request.args.get("email", "").strip().lower()
         password = ""
-        if email == "admin@kapabank.com":
-            password = "Admin@Kapa2026"
-        elif email == "demo@kapabank.com":
-            password = "Demo@123"
-        elif email in ("rahul@example.com", "kanishka.jayakumar2025@vitstudent.ac.in"):
-            password = "Customer@123"
-        return render_template("login.html", next_url=next_url, email=email, password=password)
+        if email:
+            for k, c in eval_creds.items():
+                if c['email'].lower() == email:
+                    password = c['password']
+                    break
+        return render_template("login.html", next_url=next_url, email=email, password=password, eval_creds=eval_creds)
 
     # POST Login
     if not validate_csrf():
@@ -133,7 +171,7 @@ def login():
     next_url = request.form.get("next_url", "").strip()
 
     if not email or not password:
-        return render_template("login.html", error="Please provide both email and password.", email=email, next_url=next_url)
+        return render_template("login.html", error="Please provide both email and password.", email=email, next_url=next_url, eval_creds=eval_creds)
 
     connection = get_connection()
     cursor = connection.cursor()
@@ -150,11 +188,11 @@ def login():
 
         if not user or not check_password_hash(user['password_hash'], password):
             log_audit("LOGIN_FAILED", entity_type="USER", details=f"Failed login attempt for email: {email}")
-            return render_template("login.html", error="Invalid email or password.", email=email, next_url=next_url)
+            return render_template("login.html", error="Invalid email or password.", email=email, next_url=next_url, eval_creds=eval_creds)
 
         if user['is_active'] != 1:
             log_audit("LOGIN_BLOCKED", entity_type="USER", entity_id=user['user_id'], details="Inactive user login attempt", user_id=user['user_id'])
-            return render_template("login.html", error="This user account has been disabled. Please contact administrator.", email=email)
+            return render_template("login.html", error="This user account has been disabled. Please contact administrator.", email=email, eval_creds=eval_creds)
 
         # Login successful — Establish Session
         session.clear()
@@ -180,7 +218,7 @@ def login():
 
     except Exception as e:
         logger.error("Login processing error: %s", str(e), exc_info=True)
-        return render_template("login.html", error="A service error occurred. Please try again.", email=email)
+        return render_template("login.html", error="A service error occurred. Please try again.", email=email, eval_creds=eval_creds)
     finally:
         cursor.close()
         connection.close()
@@ -197,7 +235,8 @@ def logout():
 
 @app.route("/credentials")
 def demo_credentials():
-    return render_template("credentials.html")
+    eval_creds = get_evaluation_credentials()
+    return render_template("credentials.html", eval_creds=eval_creds)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -262,9 +301,9 @@ def register():
         # 2. Insert User Authentication credentials
         pwd_hash = generate_password_hash(password)
         cursor.execute("""
-            INSERT INTO users (email, password_hash, role, customer_id, is_active)
-            VALUES (:1, :2, 'CUSTOMER', :3, 1)
-        """, (email, pwd_hash, new_customer_id))
+            INSERT INTO users (email, password_hash, role, customer_id, is_active, display_password)
+            VALUES (:1, :2, 'CUSTOMER', :3, 1, :4)
+        """, (email, pwd_hash, new_customer_id, password))
 
         cursor.execute("SELECT user_id FROM users WHERE LOWER(email) = :1", (email,))
         new_user_id = dictfetchone(cursor)['user_id']
@@ -998,7 +1037,7 @@ def customer_change_password():
             return render_error("Incorrect Password", "Current password entered is incorrect.", "/profile", "Back to Profile")
 
         new_hash = generate_password_hash(new_password)
-        cursor.execute("UPDATE users SET password_hash = :1 WHERE user_id = :2", (new_hash, user_id))
+        cursor.execute("UPDATE users SET password_hash = :1, display_password = :2 WHERE user_id = :3", (new_hash, new_password, user_id))
         connection.commit()
 
         log_audit("PASSWORD_CHANGED", "USER", user_id, "User updated their login password")
@@ -1156,9 +1195,9 @@ def admin_add_customer():
 
         pwd_hash = generate_password_hash(initial_password)
         cursor.execute("""
-            INSERT INTO users (email, password_hash, role, customer_id, is_active)
-            VALUES (:1, :2, 'CUSTOMER', :3, 1)
-        """, (email, pwd_hash, cid))
+            INSERT INTO users (email, password_hash, role, customer_id, is_active, display_password)
+            VALUES (:1, :2, 'CUSTOMER', :3, 1, :4)
+        """, (email, pwd_hash, cid, initial_password))
 
         log_audit("ADMIN_CREATE_CUSTOMER", "CUSTOMER", cid, f"Admin provisioned customer {name} ({email})")
 

@@ -86,31 +86,31 @@
       
       <div class="demo-creds-grid">
         <!-- Admin Credential -->
-        <div class="demo-cred-item" onclick="fillCreds('admin@kapabank.com', 'Admin@Kapa2026')" role="button" tabindex="0" title="Click to autofill Admin credentials">
+        <div class="demo-cred-item" onclick="fillCreds('{{ eval_creds.admin.email }}', '{{ eval_creds.admin.password }}')" role="button" tabindex="0" title="Click to autofill Admin credentials">
           <span class="badge badge-danger">ADMIN</span>
-          <strong>admin@kapabank.com</strong>
-          <small>Password: Admin@Kapa2026</small>
+          <strong>{{ eval_creds.admin.email }}</strong>
+          <small>Password: <span class="cred-pwd-val">{{ eval_creds.admin.password }}</span></small>
         </div>
 
         <!-- Demo Customer (ID 21) -->
-        <div class="demo-cred-item" onclick="fillCreds('demo@kapabank.com', 'Demo@123')" role="button" tabindex="0" title="Click to autofill Demo Customer credentials">
+        <div class="demo-cred-item" onclick="fillCreds('{{ eval_creds.demo.email }}', '{{ eval_creds.demo.password }}')" role="button" tabindex="0" title="Click to autofill Demo Customer credentials">
           <span class="badge badge-success">DEMO (ID 21)</span>
-          <strong>demo@kapabank.com</strong>
-          <small>Password: Demo@123</small>
+          <strong>{{ eval_creds.demo.email }}</strong>
+          <small>Password: <span class="cred-pwd-val">{{ eval_creds.demo.password }}</span></small>
         </div>
 
         <!-- Customer 1 (Rahul Kumar) -->
-        <div class="demo-cred-item" onclick="fillCreds('rahul@example.com', 'Customer@123')" role="button" tabindex="0" title="Click to autofill Customer 1 credentials">
+        <div class="demo-cred-item" onclick="fillCreds('{{ eval_creds.rahul.email }}', '{{ eval_creds.rahul.password }}')" role="button" tabindex="0" title="Click to autofill Customer 1 credentials">
           <span class="badge badge-info">CUSTOMER (ID 1)</span>
-          <strong>rahul@example.com</strong>
-          <small>Password: Customer@123</small>
+          <strong>{{ eval_creds.rahul.email }}</strong>
+          <small>Password: <span class="cred-pwd-val">{{ eval_creds.rahul.password }}</span></small>
         </div>
 
         <!-- Customer 2 (Kanishka) -->
-        <div class="demo-cred-item" onclick="fillCreds('kanishka.jayakumar2025@vitstudent.ac.in', 'Customer@123')" role="button" tabindex="0" title="Click to autofill Customer 2 credentials">
+        <div class="demo-cred-item" onclick="fillCreds('{{ eval_creds.kanishka.email }}', '{{ eval_creds.kanishka.password }}')" role="button" tabindex="0" title="Click to autofill Customer 2 credentials">
           <span class="badge badge-purple">CUSTOMER (ID 2)</span>
-          <strong>kanishka.jayakumar2025@vitstudent.ac.in</strong>
-          <small>Password: Customer@123</small>
+          <strong>{{ eval_creds.kanishka.email }}</strong>
+          <small>Password: <span class="cred-pwd-val">{{ eval_creds.kanishka.password }}</span></small>
         </div>
       </div>
 
