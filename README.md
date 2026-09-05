@@ -84,17 +84,7 @@ The database comes pre-seeded with the following credentials for testing and eva
 - **Password:** `Demo@123`
 - **Access:** Demonstrates customer banking portal on demonstration account `DEMO1001` (Account ID 21).
 
-### Customer (Rahul Kumar - Customer ID 1)
-- **Email:** `rahul@example.com`
-- **Password:** `Customer@123`
-- **Access:** Personal Customer Portal, Accounts `KAPA1001` and `KAPA1002`, Instant Deposits/Withdrawals, Domestic Transfers, PDF Statements.
-
-### Customer (Kanishka - Customer ID 2)
-- **Email:** `kanishka.jayakumar2025@vitstudent.ac.in`
-- **Password:** `Customer@123`
-- **Access:** Personal Customer Portal, Account `KAPA2001` (Used to verify customer data isolation).
-
-*Note: You can also register a brand-new customer account anytime via the "Open Account" button (`/register`).*
+*Note: Additional evaluation customer accounts are available dynamically within the application via the **Quick Evaluation Credentials** modal on the login screen, or you can register a new customer account anytime via the "Open Account" button (`/register`).*
 
 ---
 
