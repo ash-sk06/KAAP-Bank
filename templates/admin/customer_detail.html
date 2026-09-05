@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Customer {{ customer.name }} | Admin{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow text-danger">CUSTOMER RECORD</p>
+      <h1>{{ customer.name }}</h1>
+      <p class="page-description">Customer profile details, linked accounts, authentication security, and ledger activity.</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/admin/customers" class="btn btn-secondary">&larr; Back to Customers</a>
+    </div>
+  </div>
+
+  <!-- Profile & Security Specs Grid -->
+  <div class="action-grid">
+    <div class="card">
+      <div class="card-header">
+        <h2>Customer Profile</h2>
+      </div>
+      <div class="card-body detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Customer ID</span>
+          <strong class="detail-value">#{{ customer.customer_id }}</strong>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Legal Name</span>
+          <strong class="detail-value">{{ customer.name }}</strong>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Email Address</span>
+          <strong class="detail-value">{{ customer.email }}</strong>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Phone Number</span>
+          <strong class="detail-value">{{ customer.phone }}</strong>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Residential Address</span>
+          <strong class="detail-value">{{ customer.address or '-' }}</strong>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Total Transactions</span>
+          <strong class="detail-value">{{ tx_count }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Auth Status Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2>User Authentication Status</h2>
+        {% if user_info %}
+          <span class="badge {% if user_info.is_active == 1 %}badge-success{% else %}badge-danger{% endif %}">
+            {% if user_info.is_active == 1 %}LOGIN ACTIVE{% else %}LOGIN DISABLED{% endif %}
+          </span>
+        {% else %}
+          <span class="badge badge-warning">NO USER LOGIN</span>
+        {% endif %}
+      </div>
+      <div class="card-body detail-grid">
+        {% if user_info %}
+          <div class="detail-item">
+            <span class="detail-label">User ID</span>
+            <strong class="detail-value">#{{ user_info.user_id }}</strong>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Account Created</span>
+            <strong class="detail-value">{{ user_info.created_at.strftime('%b %d, %Y') if user_info.created_at else '-' }}</strong>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Last Successful Login</span>
+            <strong class="detail-value">{{ user_info.last_login.strftime('%b %d, %Y %I:%M %p') if user_info.last_login else 'Never' }}</strong>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Password Policy</span>
+            <strong class="detail-value">Werkzeug Scrypt Hash</strong>
+          </div>
+        {% else %}
+          <p class="text-muted">This customer has no web portal login provisioned.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Accounts Table for this Customer -->
+  <section class="table-card" style="margin-top: 24px;">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">PORTFOLIO</p>
+        <h2>Accounts Owned by {{ customer.name }}</h2>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Bank accounts owned by this customer</caption>
+        <thead>
+          <tr>
+            <th scope="col">Account Number</th>
+            <th scope="col">Type</th>
+            <th scope="col">Balance</th>
+            <th scope="col">Status</th>
+            <th scope="col">Opened Date</th>
+            <th scope="col" class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in accounts %}
+          <tr>
+            <td>
+              <a href="/admin/accounts/{{ a.account_id }}" class="account-link">
+                <strong>{{ a.account_number }}</strong>
+              </a>
+            </td>
+            <td><span class="badge badge-info">{{ a.account_type }}</span></td>
+            <td><strong>₹{{ "{:,.2f}".format(a.balance) }}</strong></td>
+            <td>
+              <span class="badge {% if a.status == 'ACTIVE' %}badge-success{% elif a.status == 'BLOCKED' %}badge-danger{% else %}badge-warning{% endif %}">
+                {{ a.status }}
+              </span>
+            </td>
+            <td>{{ a.created_date.strftime('%b %d, %Y') if a.created_date else '-' }}</td>
+            <td class="text-right">
+              <a href="/admin/accounts/{{ a.account_id }}" class="btn btn-sm btn-secondary" aria-label="Inspect account {{ a.account_number }}">
+                Inspect &rarr;
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="table-empty">This customer does not have any bank accounts opened yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

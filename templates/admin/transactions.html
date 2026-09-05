@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}System Transactions | KAPA Bank Admin{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow text-danger">SYSTEM SURVEILLANCE</p>
+      <h1>Transaction Monitoring</h1>
+      <p class="page-description">Inspect real-time transactional activity and atomic status across all accounts in the core banking system.</p>
+    </div>
+  </div>
+
+  <!-- Search & Filter Card -->
+  <div class="card search-filter-card">
+    <form method="GET" action="/admin/transactions" class="search-filter-form">
+      <div class="filter-group-row">
+        <!-- Search Keyword -->
+        <div class="search-input-wrapper">
+          <label for="q" class="sr-only">Search by Account Number or Customer Name</label>
+          <span class="search-icon" aria-hidden="true">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+          </span>
+          <input 
+            type="text" 
+            id="q" 
+            name="q" 
+            value="{{ search_query|default('') }}" 
+            placeholder="Search account number or customer..." 
+            class="form-control search-input">
+        </div>
+
+        <!-- Filter Type -->
+        <div class="filter-item">
+          <label for="type" class="sr-only">Filter by Type</label>
+          <select id="type" name="type" class="form-control filter-select">
+            <option value="">All Types</option>
+            <option value="DEPOSIT" {% if filter_type == 'DEPOSIT' %}selected{% endif %}>Deposit</option>
+            <option value="WITHDRAWAL" {% if filter_type == 'WITHDRAWAL' %}selected{% endif %}>Withdrawal</option>
+            <option value="TRANSFER_IN" {% if filter_type == 'TRANSFER_IN' %}selected{% endif %}>Transfer In</option>
+            <option value="TRANSFER_OUT" {% if filter_type == 'TRANSFER_OUT' %}selected{% endif %}>Transfer Out</option>
+          </select>
+        </div>
+
+        <!-- Filter Status -->
+        <div class="filter-item">
+          <label for="status" class="sr-only">Filter by Status</label>
+          <select id="status" name="status" class="form-control filter-select">
+            <option value="">All Statuses</option>
+            <option value="COMMITTED" {% if filter_status == 'COMMITTED' %}selected{% endif %}>Committed</option>
+            <option value="ROLLED_BACK" {% if filter_status == 'ROLLED_BACK' %}selected{% endif %}>Rolled Back</option>
+            <option value="FAILED" {% if filter_status == 'FAILED' %}selected{% endif %}>Failed</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Filter</button>
+        {% if search_query or filter_type or filter_status %}
+          <a href="/admin/transactions" class="btn btn-secondary">Clear</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Transactions Table -->
+  <section class="table-card">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">CORE LEDGER</p>
+        <h2>Global Banking Transactions</h2>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">List of all system transactions across all bank accounts</caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Account</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Date &amp; Time</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transactions %}
+          <tr>
+            <td><strong>#{{ t.transaction_id }}</strong></td>
+            <td>
+              <a href="/admin/accounts/{{ t.account_id }}" class="account-link">
+                {{ t.account_number }}
+              </a>
+            </td>
+            <td>{{ t.customer_name }}</td>
+            <td>
+              <span class="badge {% if t.transaction_type in ['DEPOSIT', 'TRANSFER_IN'] %}badge-success{% else %}badge-warning{% endif %}">
+                {{ t.transaction_type }}
+              </span>
+            </td>
+            <td>
+              <strong class="{% if t.transaction_type in ['DEPOSIT', 'TRANSFER_IN'] %}text-success{% else %}text-danger{% endif %}">
+                {% if t.transaction_type in ['DEPOSIT', 'TRANSFER_IN'] %}+{% else %}-{% endif %}₹{{ "{:,.2f}".format(t.amount) }}
+              </strong>
+            </td>
+            <td>{{ t.display_date }} <small class="text-muted">{{ t.display_time }} IST</small></td>
+            <td>
+              <span class="badge {% if t.status == 'COMMITTED' %}badge-success{% elif t.status == 'ROLLED_BACK' %}badge-warning{% else %}badge-danger{% endif %}">
+                {{ t.status }}
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="table-empty">No transactions match the selected filters.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

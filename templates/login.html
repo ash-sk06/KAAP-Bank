@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | KAPA Bank{% endblock %}
+
+{% block content %}
+<div class="auth-page-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo-badge" aria-hidden="true">K</div>
+      <h1>Sign In to KAPA Bank</h1>
+      <p class="auth-subtitle">Access your personal banking portal or administrative console.</p>
+    </div>
+
+    {% if error %}
+      <div class="alert alert-danger" role="alert">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        <span>{{ error }}</span>
+      </div>
+    {% endif %}
+
+    <form method="POST" action="/login" class="auth-form" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="next_url" value="{{ next_url|default('') }}">
+
+      <div class="form-group">
+        <label for="email">Email Address <span class="required-mark" aria-hidden="true">*</span></label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          value="{{ email|default('') }}" 
+          required 
+          autocomplete="email" 
+          placeholder="name@example.com"
+          class="form-control"
+          aria-required="true">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password <span class="required-mark" aria-hidden="true">*</span></label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          required 
+          autocomplete="current-password" 
+          placeholder="Enter your password"
+          class="form-control"
+          aria-required="true">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Sign In</button>
+    </form>
+
+    <!-- Quick Demo Credential Helper Box for Project Evaluators -->
+    <div class="demo-credentials-box">
+      <h3>Quick Evaluation Credentials</h3>
+      <div class="demo-creds-grid">
+        <div class="demo-cred-item" onclick="fillCreds('admin@kapabank.com', 'Admin@Kapa2026')" role="button" tabindex="0" title="Click to autofill Admin credentials">
+          <span class="badge badge-danger">ADMIN</span>
+          <strong>admin@kapabank.com</strong>
+          <small>Password: Admin@Kapa2026</small>
+        </div>
+        <div class="demo-cred-item" onclick="fillCreds('rahul@example.com', 'Customer@123')" role="button" tabindex="0" title="Click to autofill Customer credentials">
+          <span class="badge badge-success">CUSTOMER</span>
+          <strong>rahul@example.com</strong>
+          <small>Password: Customer@123</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-footer">
+      <p>New to KAPA Bank? <a href="/register" class="auth-link">Open a New Account &rarr;</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function fillCreds(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+  }
+</script>
+{% endblock %}

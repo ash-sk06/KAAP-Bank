@@ -1,48 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}KAPA Bank{% endblock %}</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KAPA Bank — Professional Bank Transaction Management System and Multi-User Portal">
+  <title>{% block title %}KAPA Bank | Transaction Management System{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header>
     <nav class="navbar" role="navigation" aria-label="Main navigation">
-        <div class="nav-container">
-            <a href="/" class="nav-brand">
-                <span class="nav-brand-icon" aria-hidden="true">K</span>
-                <span class="nav-brand-text"><strong>KAPA BANK</strong><small>Transaction Management</small></span>
-            </a>
-            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
-                <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
-            </button>
-            <div class="nav-links" id="nav-links">
-                <a href="/" class="nav-link">Dashboard</a>
-                <a href="/customers" class="nav-link">Customers</a>
-                <a href="/accounts" class="nav-link">Accounts</a>
-                <a href="/transfer" class="nav-link">Transfers</a>
-                <a href="/transactions" class="nav-link">Transactions</a>
-                <a href="/reports" class="nav-link">Reports</a>
-                <a href="/transaction-control" class="nav-link">Transaction Control</a>
-            </div>
+      <div class="nav-container">
+        <a href="/" class="nav-brand" aria-label="KAPA Bank Home">
+          <div class="nav-brand-icon" aria-hidden="true">K</div>
+          <div class="nav-brand-text">
+            <strong>KAPA BANK</strong>
+            <small>{% if current_user and current_user.role == 'ADMIN' %}ADMINISTRATIVE CONSOLE{% else %}ONLINE BANKING PORTAL{% endif %}</small>
+          </div>
+        </a>
+
+        <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div class="nav-links" id="nav-links">
+          {% if current_user %}
+            {% if current_user.role == 'ADMIN' %}
+              <!-- Admin Navigation Links -->
+              <a href="/admin" class="nav-link {% if request.path == '/admin' %}active{% endif %}">Dashboard</a>
+              <a href="/admin/customers" class="nav-link {% if '/admin/customers' in request.path %}active{% endif %}">Customers</a>
+              <a href="/admin/accounts" class="nav-link {% if '/admin/accounts' in request.path %}active{% endif %}">Accounts</a>
+              <a href="/admin/transactions" class="nav-link {% if request.path == '/admin/transactions' %}active{% endif %}">Transactions</a>
+              <a href="/admin/reports" class="nav-link {% if request.path == '/admin/reports' %}active{% endif %}">Reports</a>
+              <a href="/admin/audit-log" class="nav-link {% if request.path == '/admin/audit-log' %}active{% endif %}">Audit Trail</a>
+              <a href="/admin/transaction-control" class="nav-link {% if '/admin/transaction-control' in request.path %}active{% endif %}">ACID Demo</a>
+              
+              <div class="nav-user-badge admin">
+                <span class="badge badge-danger">ADMIN</span>
+                <a href="/logout" class="nav-link logout-btn" title="Sign out of Administrator console">Logout</a>
+              </div>
+            {% else %}
+              <!-- Customer Navigation Links -->
+              <a href="/" class="nav-link {% if request.path in ['/', '/dashboard'] %}active{% endif %}">Dashboard</a>
+              <a href="/accounts" class="nav-link {% if '/accounts' in request.path %}active{% endif %}">My Accounts</a>
+              <a href="/transfer" class="nav-link {% if request.path == '/transfer' %}active{% endif %}">Transfer Funds</a>
+              <a href="/transactions" class="nav-link {% if request.path == '/transactions' %}active{% endif %}">History</a>
+              <a href="/statements" class="nav-link {% if request.path == '/statements' %}active{% endif %}">Statements</a>
+              <a href="/profile" class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a>
+
+              <div class="nav-user-badge customer">
+                <span class="user-greeting">{{ current_user.name }}</span>
+                <a href="/logout" class="nav-link logout-btn" title="Sign out of online banking">Logout</a>
+              </div>
+            {% endif %}
+          {% else %}
+            <!-- Unauthenticated Links -->
+            <a href="/login" class="nav-link {% if request.path == '/login' %}active{% endif %}">Sign In</a>
+            <a href="/register" class="btn btn-primary btn-sm">Open Account</a>
+          {% endif %}
         </div>
+      </div>
     </nav>
-    <main class="main-content" id="main-content" role="main">
-        {% block content %}{% endblock %}
-    </main>
-    <footer class="footer" role="contentinfo">
-        <p>KAPA BANK &mdash; Bank Transaction Management System</p>
-        <p>DBMS Application Project</p>
-    </footer>
-    <script>
-        document.querySelector('.nav-toggle').addEventListener('click', function() {
-            const nav = document.getElementById('nav-links');
-            const expanded = this.getAttribute('aria-expanded') === 'true';
-            this.setAttribute('aria-expanded', !expanded);
-            nav.classList.toggle('open');
-        });
-    </script>
-    {% block scripts %}{% endblock %}
+  </header>
+
+  <main class="main-content" id="main-content" role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <div class="footer-container">
+      <p><strong>KAPA BANK</strong> — Bank Transaction Management System</p>
+      <p>College DBMS Academic Project | Powered by Oracle Autonomous Database &amp; Flask</p>
+      <p class="text-muted"><small>&copy; {{ now_year }} KAPA Bank. Demonstration Banking Portal. Passwords securely hashed with Werkzeug.</small></p>
+    </div>
+  </footer>
+
+  <script>
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks = document.getElementById('nav-links');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', function() {
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !expanded);
+        navLinks.classList.toggle('open');
+      });
+    }
+  </script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

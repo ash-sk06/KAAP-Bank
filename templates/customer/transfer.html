@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Fund Transfer | KAPA Bank{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">DOMESTIC PAYMENTS</p>
+      <h1>Transfer Funds</h1>
+      <p class="page-description">Execute real-time funds transfers between accounts using ACID transaction guarantees.</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/transactions" class="btn btn-secondary">View Past Transfers &rarr;</a>
+    </div>
+  </div>
+
+  <div class="transfer-layout-grid">
+    <!-- Transfer Form Card -->
+    <div class="form-card">
+      <div class="card-heading">
+        <div class="action-icon" aria-hidden="true">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path d="M13 3l4 4-4 4v-3H3V6h10V3zM7 17l-4-4 4-4v3h10v2H7v3z"/></svg>
+        </div>
+        <div>
+          <h2>Payment Order Form</h2>
+          <p>Double-entry transaction with atomic debit and credit</p>
+        </div>
+      </div>
+
+      <form method="POST" action="/transfer" id="transferForm" onsubmit="return confirmTransfer();">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- Sender Account -->
+        <div class="form-group">
+          <label for="from_account">Debit From (Your Account) <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="from_account" name="from_account" class="form-control" required aria-required="true">
+            <option value="" disabled selected>Select origin account...</option>
+            {% for a in my_accounts %}
+              <option value="{{ a.account_id }}" data-balance="{{ a.balance }}">
+                {{ a.account_number }} ({{ a.account_type }}) — Available: ₹{{ "{:,.2f}".format(a.balance) }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Recipient Account -->
+        <div class="form-group">
+          <label for="to_account">Credit To (Destination Account) <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="to_account" name="to_account" class="form-control" required aria-required="true">
+            <option value="" disabled selected>Select destination account...</option>
+            {% for a in all_accounts %}
+              <option value="{{ a.account_id }}">
+                {{ a.account_number }} ({{ a.customer_name }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Transfer Amount -->
+        <div class="form-group">
+          <label for="transfer_amount">Transfer Amount (₹) <span class="required-mark" aria-hidden="true">*</span></label>
+          <input 
+            type="number" 
+            id="transfer_amount" 
+            name="amount" 
+            step="0.01" 
+            min="1" 
+            required 
+            placeholder="e.g. 2500.00" 
+            class="form-control"
+            aria-required="true">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Authorize &amp; Transfer Funds</button>
+      </form>
+    </div>
+
+    <!-- Security & Concurrency Architecture Explanation Sidebar -->
+    <div class="card info-sidebar-card">
+      <div class="card-header">
+        <h2>DBMS Architecture Notice</h2>
+      </div>
+      <div class="card-body">
+        <div class="acid-callout">
+          <div class="acid-badge">ACID</div>
+          <div>
+            <strong>Atomic Transaction Processing</strong>
+            <p>Your transfer updates both balances and creates transfer records in a single atomic transaction. If either debit or credit fails, Oracle issues an automatic <code>ROLLBACK</code>.</p>
+          </div>
+        </div>
+
+        <div class="acid-callout">
+          <div class="acid-badge">LOCK</div>
+          <div>
+            <strong>Deadlock-Free Row Level Locks</strong>
+            <p>Accounts are locked in strictly ascending numeric order (<code>min(acc1, acc2)</code> followed by <code>max(acc1, acc2)</code>) via <code>SELECT FOR UPDATE</code> to mathematically eliminate cyclic wait conditions.</p>
+          </div>
+        </div>
+
+        <div class="acid-callout">
+          <div class="acid-badge">SAFE</div>
+          <div>
+            <strong>Backend Authorization Barrier</strong>
+            <p>The server enforces customer ID isolation on the database query. You cannot transfer funds out of accounts not belonging to your authenticated login.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function confirmTransfer() {
+    const fromSelect = document.getElementById('from_account');
+    const toSelect = document.getElementById('to_account');
+    const amountInput = document.getElementById('transfer_amount');
+
+    if (!fromSelect.value || !toSelect.value) {
+      alert('Please select both origin and destination accounts.');
+      return false;
+    }
+
+    if (fromSelect.value === toSelect.value) {
+      alert('Origin and destination accounts must be different.');
+      return false;
+    }
+
+    const amount = parseFloat(amountInput.value);
+    if (isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid transfer amount.');
+      return false;
+    }
+
+    const selectedOption = fromSelect.options[fromSelect.selectedIndex];
+    const available = parseFloat(selectedOption.getAttribute('data-balance') || '0');
+    if (amount > available) {
+      alert('Insufficient funds! Requested: ₹' + amount.toFixed(2) + ', Available: ₹' + available.toFixed(2));
+      return false;
+    }
+
+    return confirm('Confirm transfer of ₹' + amount.toFixed(2) + ' to recipient account?');
+  }
+</script>
+{% endblock %}

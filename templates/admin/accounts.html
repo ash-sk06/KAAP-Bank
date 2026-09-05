@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Accounts | KAPA Bank Admin{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow text-danger">PORTFOLIO ADMINISTRATION</p>
+      <h1>Bank Accounts Management</h1>
+      <p class="page-description">Oversee all customer accounts, manage active/blocked statuses, and open new accounts.</p>
+    </div>
+  </div>
+
+  <!-- Search & Open Account Grid -->
+  <div class="action-grid">
+    <!-- Filter Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Filter Accounts</h2>
+      </div>
+      <div class="card-body">
+        <form method="GET" action="/admin/accounts">
+          <div class="form-group">
+            <label for="q">Search Account Number or Name</label>
+            <input 
+              type="text" 
+              id="q" 
+              name="q" 
+              value="{{ search_query|default('') }}" 
+              placeholder="ACC1001 or Customer name..." 
+              class="form-control">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="type">Account Type</label>
+              <select id="type" name="type" class="form-control">
+                <option value="">All Types</option>
+                <option value="SAVINGS" {% if filter_type == 'SAVINGS' %}selected{% endif %}>Savings</option>
+                <option value="CURRENT" {% if filter_type == 'CURRENT' %}selected{% endif %}>Current</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Account Status</label>
+              <select id="status" name="status" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="ACTIVE" {% if filter_status == 'ACTIVE' %}selected{% endif %}>Active</option>
+                <option value="BLOCKED" {% if filter_status == 'BLOCKED' %}selected{% endif %}>Blocked</option>
+                <option value="CLOSED" {% if filter_status == 'CLOSED' %}selected{% endif %}>Closed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            {% if search_query or filter_type or filter_status %}
+              <a href="/admin/accounts" class="btn btn-secondary">Clear</a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Open Account Card -->
+    <div class="form-card">
+      <div class="card-heading">
+        <div class="action-icon" aria-hidden="true">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+        </div>
+        <div>
+          <h2>Open New Bank Account</h2>
+          <p>Assign a savings or current account to an existing customer</p>
+        </div>
+      </div>
+
+      <form method="POST" action="/admin/add-account">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+          <label for="customer_id">Select Customer <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="customer_id" name="customer_id" class="form-control" required aria-required="true">
+            <option value="" disabled selected>Select customer...</option>
+            {% for c in customers %}
+              <option value="{{ c.customer_id }}">
+                #{{ c.customer_id }} — {{ c.name }} ({{ c.email }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="account_type">Account Type <span class="required-mark" aria-hidden="true">*</span></label>
+            <select id="account_type" name="account_type" class="form-control" required aria-required="true">
+              <option value="SAVINGS">Savings Account</option>
+              <option value="CURRENT">Current Account</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="account_number">Account Number (Leave blank to auto-generate)</label>
+            <input type="text" id="account_number" name="account_number" placeholder="Auto-generated if empty" class="form-control">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Provision Bank Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Accounts Table -->
+  <section class="table-card" style="margin-top: 24px;">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">SYSTEM REGISTRY</p>
+        <h2>All Bank Accounts</h2>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Directory of all bank accounts in the system</caption>
+        <thead>
+          <tr>
+            <th scope="col">Account Number</th>
+            <th scope="col">Customer Name</th>
+            <th scope="col">Type</th>
+            <th scope="col">Balance</th>
+            <th scope="col">Status</th>
+            <th scope="col">Created Date</th>
+            <th scope="col" class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in accounts %}
+          <tr>
+            <td>
+              <a href="/admin/accounts/{{ a.account_id }}" class="account-link">
+                <strong>{{ a.account_number }}</strong>
+              </a>
+            </td>
+            <td>
+              <a href="/admin/customers/{{ a.customer_id }}" class="account-link">
+                {{ a.customer_name }}
+              </a>
+            </td>
+            <td><span class="badge badge-info">{{ a.account_type }}</span></td>
+            <td><strong>₹{{ "{:,.2f}".format(a.balance) }}</strong></td>
+            <td>
+              <span class="badge {% if a.status == 'ACTIVE' %}badge-success{% elif a.status == 'BLOCKED' %}badge-danger{% else %}badge-warning{% endif %}">
+                {{ a.status }}
+              </span>
+            </td>
+            <td>{{ a.created_date.strftime('%b %d, %Y') if a.created_date else '-' }}</td>
+            <td class="text-right">
+              <a href="/admin/accounts/{{ a.account_id }}" class="btn btn-sm btn-secondary" aria-label="Inspect account {{ a.account_number }}">
+                Inspect &rarr;
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="table-empty">No accounts match the selected filters.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

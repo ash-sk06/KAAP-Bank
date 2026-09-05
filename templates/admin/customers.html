@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Customers | KAPA Bank Admin{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow text-danger">ADMINISTRATIVE DIRECTORY</p>
+      <h1>Customer Management</h1>
+      <p class="page-description">Search, inspect, and provision customer profiles and user credentials.</p>
+    </div>
+  </div>
+
+  <!-- Search and New Customer Grid -->
+  <div class="action-grid">
+    <!-- Search Customers Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Search Customers</h2>
+      </div>
+      <div class="card-body">
+        <form method="GET" action="/admin/customers">
+          <div class="form-group">
+            <label for="q">Search Keyword</label>
+            <input 
+              type="text" 
+              id="q" 
+              name="q" 
+              value="{{ search_query|default('') }}" 
+              placeholder="Search by name, email, or phone..." 
+              class="form-control">
+          </div>
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Search</button>
+            {% if search_query %}
+              <a href="/admin/customers" class="btn btn-secondary">Clear</a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Customer Form Card -->
+    <div class="form-card">
+      <div class="card-heading">
+        <div class="action-icon" aria-hidden="true">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/></svg>
+        </div>
+        <div>
+          <h2>Register New Customer</h2>
+          <p>Create customer profile and provision login user</p>
+        </div>
+      </div>
+
+      <form method="POST" action="/admin/add-customer">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name <span class="required-mark" aria-hidden="true">*</span></label>
+            <input type="text" id="name" name="name" required placeholder="e.g. Ramesh Patel" class="form-control" aria-required="true">
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address <span class="required-mark" aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" required placeholder="ramesh@example.com" class="form-control" aria-required="true">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Phone Number <span class="required-mark" aria-hidden="true">*</span></label>
+            <input type="tel" id="phone" name="phone" required placeholder="+91 9876543210" class="form-control" aria-required="true">
+          </div>
+          <div class="form-group">
+            <label for="initial_password">Temporary Password</label>
+            <input type="text" id="initial_password" name="initial_password" value="Customer@123" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="address">Mailing Address</label>
+          <input type="text" id="address" name="address" placeholder="Address..." class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Register Customer &amp; Provision Login</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Customers Table -->
+  <section class="table-card" style="margin-top: 24px;">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">DATABASE DIRECTORY</p>
+        <h2>Registered Bank Customers</h2>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">List of all customers registered with the bank</caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Accounts</th>
+            <th scope="col">Total Balance</th>
+            <th scope="col" class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in customers %}
+          <tr>
+            <td><strong>#{{ c.customer_id }}</strong></td>
+            <td>
+              <a href="/admin/customers/{{ c.customer_id }}" class="account-link">
+                <strong>{{ c.name }}</strong>
+              </a>
+            </td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.phone }}</td>
+            <td><span class="badge badge-info">{{ c.account_count }} account(s)</span></td>
+            <td><strong>₹{{ "{:,.2f}".format(c.total_balance) }}</strong></td>
+            <td class="text-right">
+              <a href="/admin/customers/{{ c.customer_id }}" class="btn btn-sm btn-secondary" aria-label="View profile of {{ c.name }}">
+                Inspect &rarr;
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="table-empty">No customers found matching the search criteria.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

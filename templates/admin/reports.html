@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}DBMS Reports &amp; Analytics | KAPA Bank Admin{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow text-danger">DATABASE MANAGEMENT SYSTEM ANALYTICS</p>
+      <h1>Core Banking Reports</h1>
+      <p class="page-description">Demonstration of SQL aggregate queries, multi-table JOIN operations, conditional aggregations, and data warehousing summaries.</p>
+    </div>
+  </div>
+
+  <!-- Total Volumes (Conditional Aggregates with SUM CASE) -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon green" aria-hidden="true">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value text-success">₹{{ "{:,.2f}".format(total_deposits) }}</div>
+        <div class="stat-label">Total Deposits Volume</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon orange" aria-hidden="true">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value text-danger">₹{{ "{:,.2f}".format(total_withdrawals) }}</div>
+        <div class="stat-label">Total Withdrawals Volume</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon purple" aria-hidden="true">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M13 3l4 4-4 4v-3H3V6h10V3zM7 17l-4-4 4-4v3h10v2H7v3z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">₹{{ "{:,.2f}".format(total_transfers) }}</div>
+        <div class="stat-label">Total Inter-Account Transfers</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon blue" aria-hidden="true">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">₹{{ "{:,.2f}".format(total_balance) }}</div>
+        <div class="stat-label">Total Active Bank Deposits</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-grid" style="margin-top: 24px;">
+    <!-- Transaction Type Breakdown -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Transaction Type Breakdown (GROUP BY)</h2>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Transaction Type</th>
+              <th scope="col">Total Count</th>
+              <th scope="col" class="text-right">Aggregate Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in transaction_type_counts %}
+            <tr>
+              <td>
+                <span class="badge {% if row.transaction_type in ['DEPOSIT', 'TRANSFER_IN'] %}badge-success{% else %}badge-warning{% endif %}">
+                  {{ row.transaction_type }}
+                </span>
+              </td>
+              <td>{{ row.count }}</td>
+              <td class="text-right"><strong>₹{{ "{:,.2f}".format(row.total) }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Account Distribution Breakdown -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Account Distribution (GROUP BY)</h2>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Account Type</th>
+              <th scope="col">Total Accounts</th>
+              <th scope="col" class="text-right">Aggregate Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in account_type_counts %}
+            <tr>
+              <td><span class="badge badge-info">{{ row.account_type }}</span></td>
+              <td>{{ row.count }}</td>
+              <td class="text-right"><strong>₹{{ "{:,.2f}".format(row.total_balance) }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top 5 Accounts by Balance -->
+  <section class="table-card" style="margin-top: 24px;">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">ORDER BY &amp; FETCH FIRST</p>
+        <h2>Top 5 Accounts by Balance (JOIN &amp; Sorting)</h2>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Top 5 highest balance bank accounts</caption>
+        <thead>
+          <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Account Number</th>
+            <th scope="col">Customer Name</th>
+            <th scope="col" class="text-right">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for acc in top_accounts %}
+          <tr>
+            <td><strong>#{{ loop.index }}</strong></td>
+            <td><strong>{{ acc.account_number }}</strong></td>
+            <td>{{ acc.customer_name }}</td>
+            <td class="text-right"><strong class="balance-figure">₹{{ "{:,.2f}".format(acc.balance) }}</strong></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

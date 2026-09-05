@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}DBMS Transaction Control | KAPA Bank Admin{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow text-danger">DATABASE MANAGEMENT SYSTEM LABORATORY</p>
+      <h1>Transaction Control Commands</h1>
+      <p class="page-description">Interactive demonstration of Oracle TCL primitives: <code>COMMIT</code>, <code>ROLLBACK</code>, and <code>SAVEPOINT</code> with ACID guarantees.</p>
+    </div>
+  </div>
+
+  <!-- Demo Account Status Card -->
+  <div class="demo-account-card">
+    <div class="demo-account-grid">
+      <div class="demo-stat">
+        <span>Demonstration Account</span>
+        <strong>{{ account.account_number }}</strong>
+      </div>
+      <div class="demo-stat">
+        <span>Current Live Balance</span>
+        <strong class="balance-large text-success">₹{{ "{:,.2f}".format(account.balance) }}</strong>
+      </div>
+      <div class="demo-stat">
+        <span>Environment</span>
+        <strong class="text-primary">Oracle Autonomous DB (PDB)</strong>
+      </div>
+      <div class="demo-stat demo-stat-action">
+        <form method="POST" action="/admin/transaction-control/reset" onsubmit="return confirm('Reset demo account balance to ₹10,000.00?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-secondary btn-sm">Reset Demo Account to ₹10,000</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive TCL Operations Grid -->
+  <div class="tcl-action-grid">
+
+    <!-- 1. COMMIT Card -->
+    <div class="tcl-card">
+      <div class="tcl-header">
+        <div class="tcl-icon green" aria-hidden="true">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <div>
+          <h2>COMMIT Demonstration</h2>
+          <span class="badge badge-success">PERMANENT PERSISTENCE</span>
+        </div>
+      </div>
+      <div class="tcl-body">
+        <p>Increments demo account balance by <strong>₹1,000.00</strong>, creates a committed transaction log, and issues an explicit <code>COMMIT</code> statement. All locks are released and redo is flushed to disk.</p>
+        <div class="sql-code-box">
+          <code>UPDATE bank_accounts SET balance = balance + 1000;<br>COMMIT;</code>
+        </div>
+      </div>
+      <div class="tcl-footer">
+        <form method="POST" action="/admin/transaction-control/commit" onsubmit="return confirm('Execute COMMIT transaction (+₹1,000)?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-primary btn-block">Execute COMMIT (+₹1,000)</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 2. ROLLBACK Card -->
+    <div class="tcl-card">
+      <div class="tcl-header">
+        <div class="tcl-icon orange" aria-hidden="true">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+        </div>
+        <div>
+          <h2>ROLLBACK Demonstration</h2>
+          <span class="badge badge-warning">COMPLETE REVERSAL</span>
+        </div>
+      </div>
+      <div class="tcl-body">
+        <p>Tentatively modifies the balance by <strong>+₹2,000.00</strong> in Oracle memory buffer cache, then immediately issues a <code>ROLLBACK</code> statement. The database state reverts to prior value with zero disk change.</p>
+        <div class="sql-code-box">
+          <code>UPDATE bank_accounts SET balance = balance + 2000;<br>ROLLBACK;</code>
+        </div>
+      </div>
+      <div class="tcl-footer">
+        <form method="POST" action="/admin/transaction-control/rollback" onsubmit="return confirm('Execute tentative +₹2,000 and ROLLBACK?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-secondary btn-block">Execute ROLLBACK (Undo)</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. SAVEPOINT Card -->
+    <div class="tcl-card">
+      <div class="tcl-header">
+        <div class="tcl-icon purple" aria-hidden="true">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd"/></svg>
+        </div>
+        <div>
+          <h2>SAVEPOINT Demonstration</h2>
+          <span class="badge badge-info">PARTIAL ROLLBACK</span>
+        </div>
+      </div>
+      <div class="tcl-body">
+        <p>Applies +₹1,000.00, establishes <code>SAVEPOINT intermediate_state</code>, attempts +₹2,000.00, then executes <code>ROLLBACK TO SAVEPOINT</code>. Only step 1 (+₹1,000) is saved; step 2 is discarded.</p>
+        <div class="sql-code-box">
+          <code>UPDATE ... balance + 1000;<br>SAVEPOINT intermediate;<br>UPDATE ... balance + 2000;<br>ROLLBACK TO intermediate;<br>COMMIT;</code>
+        </div>
+      </div>
+      <div class="tcl-footer">
+        <form method="POST" action="/admin/transaction-control/savepoint" onsubmit="return confirm('Execute SAVEPOINT partial rollback?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-primary btn-block">Execute SAVEPOINT (+₹1,000)</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ACID Theory Card for College Viva -->
+  <section class="card" style="margin-top: 32px;">
+    <div class="card-header">
+      <h2>Theoretical Foundation: The ACID Model in Banking Systems</h2>
+    </div>
+    <div class="card-body">
+      <div class="acid-grid">
+        <div class="acid-item">
+          <div class="acid-letter">A</div>
+          <div>
+            <strong>Atomicity ("All or Nothing")</strong>
+            <p>A multi-step banking transfer either completes entirely (both debit and credit) or none of its modifications persist. Managed via <code>COMMIT</code> and <code>ROLLBACK</code>.</p>
+          </div>
+        </div>
+
+        <div class="acid-item">
+          <div class="acid-letter">C</div>
+          <div>
+            <strong>Consistency (Integrity Constraints)</strong>
+            <p>The database never violates predefined integrity rules: <code>balance &gt;= 0</code>, foreign key references, and positive transaction values are strictly enforced by Oracle engine.</p>
+          </div>
+        </div>
+
+        <div class="acid-item">
+          <div class="acid-letter">I</div>
+          <div>
+            <strong>Isolation (Multi-User Concurrency)</strong>
+            <p>Concurrent transactions operate without reading uncommitted dirty data. Implemented with <code>SELECT ... FOR UPDATE</code> row-level exclusive locks.</p>
+          </div>
+        </div>
+
+        <div class="acid-item">
+          <div class="acid-letter">D</div>
+          <div>
+            <strong>Durability (Redo Log &amp; Checkpointing)</strong>
+            <p>Once a transaction commits, its modifications are permanently recorded in Oracle Redo Log buffers and survive system crashes, power loss, or reboot.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

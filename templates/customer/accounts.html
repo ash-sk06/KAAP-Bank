@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}My Accounts | KAPA Bank{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">PORTFOLIO OVERVIEW</p>
+      <h1>My Bank Accounts</h1>
+      <p class="page-description">Review balances, make instant deposits or withdrawals, and inspect statement histories.</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/transfer" class="btn btn-primary">Transfer Funds &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Quick Transaction Action Grid (Deposit & Withdraw) -->
+  <div class="action-grid">
+    <!-- Deposit Form Card -->
+    <div class="form-card">
+      <div class="card-heading">
+        <div class="action-icon" aria-hidden="true">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+        </div>
+        <div>
+          <h2>Instant Cash Deposit</h2>
+          <p>Credit funds securely to your selected bank account</p>
+        </div>
+      </div>
+
+      <form method="POST" action="/deposit">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+          <label for="deposit_account_id">Select Deposit Account <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="deposit_account_id" name="account_id" class="form-control" required aria-required="true">
+            {% for a in accounts %}
+              {% if a.status == 'ACTIVE' %}
+                <option value="{{ a.account_id }}">
+                  {{ a.account_number }} ({{ a.account_type }}) — ₹{{ "{:,.2f}".format(a.balance) }}
+                </option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="deposit_amount">Deposit Amount (₹) <span class="required-mark" aria-hidden="true">*</span></label>
+          <input 
+            type="number" 
+            id="deposit_amount" 
+            name="amount" 
+            step="0.01" 
+            min="1" 
+            required 
+            placeholder="e.g. 5000.00" 
+            class="form-control"
+            aria-required="true">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Execute Deposit</button>
+      </form>
+    </div>
+
+    <!-- Withdraw Form Card -->
+    <div class="form-card">
+      <div class="card-heading">
+        <div class="action-icon" aria-hidden="true">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+        </div>
+        <div>
+          <h2>Cash Withdrawal</h2>
+          <p>Debit funds safely from your available account balance</p>
+        </div>
+      </div>
+
+      <form method="POST" action="/withdraw">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+          <label for="withdraw_account_id">Select Source Account <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="withdraw_account_id" name="account_id" class="form-control" required aria-required="true">
+            {% for a in accounts %}
+              {% if a.status == 'ACTIVE' %}
+                <option value="{{ a.account_id }}">
+                  {{ a.account_number }} ({{ a.account_type }}) — Available: ₹{{ "{:,.2f}".format(a.balance) }}
+                </option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="withdraw_amount">Withdrawal Amount (₹) <span class="required-mark" aria-hidden="true">*</span></label>
+          <input 
+            type="number" 
+            id="withdraw_amount" 
+            name="amount" 
+            step="0.01" 
+            min="1" 
+            required 
+            placeholder="e.g. 1500.00" 
+            class="form-control"
+            aria-required="true">
+        </div>
+
+        <button type="submit" class="btn btn-secondary btn-block">Execute Withdrawal</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Accounts Table -->
+  <section class="table-card">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">ACCOUNTS DIRECTORY</p>
+        <h2>Account List &amp; Status</h2>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Comprehensive overview of all accounts you own</caption>
+        <thead>
+          <tr>
+            <th scope="col">Account Number</th>
+            <th scope="col">Type</th>
+            <th scope="col">Balance</th>
+            <th scope="col">Status</th>
+            <th scope="col">Opened Date</th>
+            <th scope="col" class="text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in accounts %}
+          <tr>
+            <td>
+              <a href="/accounts/{{ a.account_id }}" class="account-link">
+                <strong>{{ a.account_number }}</strong>
+              </a>
+            </td>
+            <td><span class="badge badge-info">{{ a.account_type }}</span></td>
+            <td><strong class="balance-figure">₹{{ "{:,.2f}".format(a.balance) }}</strong></td>
+            <td>
+              <span class="badge {% if a.status == 'ACTIVE' %}badge-success{% elif a.status == 'BLOCKED' %}badge-danger{% else %}badge-warning{% endif %}">
+                {{ a.status }}
+              </span>
+            </td>
+            <td>{{ a.created_date.strftime('%b %d, %Y') if a.created_date else '-' }}</td>
+            <td class="text-right">
+              <a href="/accounts/{{ a.account_id }}" class="btn btn-sm btn-secondary" aria-label="View details for account {{ a.account_number }}">
+                Statement &amp; History &rarr;
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="table-empty">No active bank accounts found. Please contact administration.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

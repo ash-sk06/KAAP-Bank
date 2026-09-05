@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Console | KAPA Bank{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow text-danger">SYSTEM ADMINISTRATOR CONSOLE</p>
+      <h1>Operations &amp; Governance Dashboard</h1>
+      <p class="page-description">Real-time system health, customer accounts management, transaction auditing, and ACID controls.</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/admin/transaction-control" class="btn btn-danger">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+        <span>ACID Transaction Demo</span>
+      </a>
+      <a href="/admin/reports" class="btn btn-secondary">Database Reports</a>
+    </div>
+  </div>
+
+  <!-- System High-Level Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue" aria-hidden="true">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zm-7 8a7 7 0 1114 0H3z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">{{ customer_count }}</div>
+        <div class="stat-label">Total Customers</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon green" aria-hidden="true">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1L2 6v1h16V6L10 1zM4 9v6h2V9H4zm4 0v6h2V9H8zm4 0v6h2V9h-2zm-8 8v1h16v-1H4z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">{{ account_count }}</div>
+        <div class="stat-label">Total Accounts</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon purple" aria-hidden="true">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3h6v2H9.5c.8.6 1.4 1.5 1.5 2.5H13v2h-2c-.2 1.7-1.5 3-3.2 3.4L12 17h-2.5L5 12.5V11h2c1.1 0 2-.7 2.3-1.5H7V7.5h2.3C9 6.7 8.1 6 7 6H7V3z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">₹{{ "{:,.2f}".format(total_balance) }}</div>
+        <div class="stat-label">Total Active Deposits</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon orange" aria-hidden="true">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 8.4l-3.2 1.9-.8-1.5L10 9V5h1.5v5.4z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">{{ transaction_count }}</div>
+        <div class="stat-label">System Transactions</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Admin Navigation Grid -->
+  <section class="admin-quick-grid">
+    <a href="/admin/customers" class="dashboard-card">
+      <div class="dashboard-icon blue" aria-hidden="true">
+        <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+      </div>
+      <div>
+        <h3>Customer Management</h3>
+        <p>Inspect customer accounts, emails, and KYC profiles</p>
+      </div>
+      <span class="card-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+
+    <a href="/admin/accounts" class="dashboard-card">
+      <div class="dashboard-icon green" aria-hidden="true">
+        <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+      </div>
+      <div>
+        <h3>Bank Accounts</h3>
+        <p>Open accounts, review balances, block or activate status</p>
+      </div>
+      <span class="card-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+
+    <a href="/admin/transactions" class="dashboard-card">
+      <div class="dashboard-icon purple" aria-hidden="true">
+        <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clip-rule="evenodd"/></svg>
+      </div>
+      <div>
+        <h3>Transaction Monitoring</h3>
+        <p>Real-time audit log of all system deposits, debits and transfers</p>
+      </div>
+      <span class="card-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+
+    <a href="/admin/audit-log" class="dashboard-card">
+      <div class="dashboard-icon orange" aria-hidden="true">
+        <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+      </div>
+      <div>
+        <h3>Security Audit Trail</h3>
+        <p>Trace administrative actions, user logins, and status updates</p>
+      </div>
+      <span class="card-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+  </section>
+
+  <!-- Distribution Cards -->
+  <div class="action-grid" style="margin-top: 24px;">
+    <div class="card">
+      <div class="card-header">
+        <h2>Account Types Breakdown</h2>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Type</th>
+              <th scope="col">Accounts</th>
+              <th scope="col" class="text-right">Total Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in account_types %}
+            <tr>
+              <td><span class="badge badge-info">{{ item.account_type }}</span></td>
+              <td>{{ item.count }}</td>
+              <td class="text-right"><strong>₹{{ "{:,.2f}".format(item.total_balance) }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Account Status Distribution</h2>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Status</th>
+              <th scope="col" class="text-right">Accounts Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in status_counts %}
+            <tr>
+              <td>
+                <span class="badge {% if s.status == 'ACTIVE' %}badge-success{% elif s.status == 'BLOCKED' %}badge-danger{% else %}badge-warning{% endif %}">
+                  {{ s.status }}
+                </span>
+              </td>
+              <td class="text-right"><strong>{{ s.count }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent System Transactions -->
+  <section class="table-card" style="margin-top: 24px;">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">SYSTEM FEED</p>
+        <h2>Recent Banking Transactions</h2>
+      </div>
+      <a href="/admin/transactions" class="btn btn-sm btn-secondary">View All Transactions &rarr;</a>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">List of recent transactions across the entire bank</caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Account</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Date &amp; Time</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in recent_transactions %}
+          <tr>
+            <td><strong>#{{ t.transaction_id }}</strong></td>
+            <td>
+              <a href="/admin/accounts/{{ t.account_id }}" class="account-link">
+                {{ t.account_number }}
+              </a>
+            </td>
+            <td>{{ t.customer_name }}</td>
+            <td>
+              <span class="badge {% if t.transaction_type in ['DEPOSIT', 'TRANSFER_IN'] %}badge-success{% else %}badge-warning{% endif %}">
+                {{ t.transaction_type }}
+              </span>
+            </td>
+            <td><strong>₹{{ "{:,.2f}".format(t.amount) }}</strong></td>
+            <td>{{ t.display_date }} <small class="text-muted">{{ t.display_time }} IST</small></td>
+            <td>
+              <span class="badge {% if t.status == 'COMMITTED' %}badge-success{% elif t.status == 'ROLLED_BACK' %}badge-warning{% else %}badge-danger{% endif %}">
+                {{ t.status }}
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="table-empty">No transactions recorded yet in system.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

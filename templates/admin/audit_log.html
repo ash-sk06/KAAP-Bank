@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Trail | KAPA Bank Admin{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow text-danger">REGULATORY &amp; SECURITY SURVEILLANCE</p>
+      <h1>Security Audit Trail</h1>
+      <p class="page-description">Immutable log of security authentication events, administrative operations, and critical database modifications.</p>
+    </div>
+  </div>
+
+  <!-- Audit Table -->
+  <section class="table-card">
+    <div class="table-header">
+      <div>
+        <p class="eyebrow">AUDIT_LOG TABLE</p>
+        <h2>Recent System Audit Records (Last 100 Events)</h2>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <caption class="sr-only">Immutable security audit trail of all transactions and system events</caption>
+        <thead>
+          <tr>
+            <th scope="col">Audit ID</th>
+            <th scope="col">Timestamp (IST)</th>
+            <th scope="col">Action</th>
+            <th scope="col">User</th>
+            <th scope="col">Entity</th>
+            <th scope="col">Details</th>
+            <th scope="col">Client IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td><strong>#{{ log.audit_id }}</strong></td>
+            <td>{{ log.timestamp_str }}</td>
+            <td>
+              <span class="badge {% if 'SUCCESS' in log.action or 'BOOTSTRAP' in log.action %}badge-success{% elif 'FAIL' in log.action or 'BLOCKED' in log.action %}badge-danger{% else %}badge-info{% endif %}">
+                {{ log.action }}
+              </span>
+            </td>
+            <td>{{ log.user_email or 'SYSTEM' }}</td>
+            <td>{{ log.entity_type or '-' }} {% if log.entity_id %}#{{ log.entity_id }}{% endif %}</td>
+            <td>{{ log.details or '-' }}</td>
+            <td><code>{{ log.ip_address or '-' }}</code></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="table-empty">No audit records recorded in the database.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
